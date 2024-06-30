@@ -9,6 +9,7 @@
 #include "ExampleUIBar.h"
 #include "MeshFactory.h"
 #include "Model.h"
+#include "Raytracer.h"
 #include "ResourceManager.h"
 #include "ScreenText.h"
 #include "SoundListener.h"
@@ -43,4 +44,7 @@ void Game::initialize()
     m_camera_comp->set_can_tick(true);
     m_camera_comp->set_fov(glm::radians(22.0f));
     m_camera_comp->update();
+
+    auto const raytracer = std::make_shared<Raytracer>();
+    raytracer->run();
 }
