@@ -35,6 +35,15 @@ inline glm::vec4 interpolate_color(glm::vec4 const& start, glm::vec4 const& end,
     return {r, g, b, a};
 }
 
+inline glm::ivec3 color_to_byte(glm::vec3 const& color)
+{
+    i32 const rbyte = static_cast<i32>(255.99f * color.r);
+    i32 const gbyte = static_cast<i32>(255.99f * color.g);
+    i32 const bbyte = static_cast<i32>(255.99f * color.b);
+
+    return {rbyte, gbyte, bbyte};
+}
+
 inline std::string generate_hex(u32 const length)
 {
     std::stringstream ss;
