@@ -1,6 +1,9 @@
 #include "Raytracer.h"
 
+#include "AK/AK.h"
 #include "AK/Types.h"
+
+#include <glm/vec3.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -27,15 +30,11 @@ void Raytracer::run()
         std::clog << "\rScanlines remaining: " << (image_height - k) << ' ' << std::flush;
         for (i32 i = 0; i < image_width; ++i)
         {
-            float const r = static_cast<float>(i) / (image_width - 1);
-            float const g = static_cast<float>(k) / (image_height - 1);
-            float constexpr b = 0.0;
+            auto pixel_color = glm::vec3(static_cast<float>(i) / (image_width - 1), static_cast<float>(k) / (image_height - 1), 0.0f);
 
-            i32 const ir = static_cast<i32>(255.99f * r);
-            i32 const ig = static_cast<i32>(255.99f * g);
-            i32 constexpr ib = static_cast<i32>(255.99f * b);
+            glm::ivec3 const color_byte = AK::color_to_byte(pixel_color);
 
-            output << ir << ' ' << ig << ' ' << ib << '\n';
+            output << color_byte.r << ' ' << color_byte.g << ' ' << color_byte.b << '\n';
         }
     }
 
