@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Ray.h"
 
+#include <glm/gtx/norm.hpp>
 #include <glm/vec3.hpp>
 
 #include <filesystem>
@@ -89,16 +90,16 @@ float Raytracer::hit_sphere(glm::vec3 const& center, float const radius, Ray con
 {
     glm::vec3 const origin_center = center - ray.origin();
 
-    float const a = glm::dot(ray.direction(), ray.direction());
-    float const b = -2.0f * glm::dot(ray.direction(), origin_center);
-    float const c = glm::dot(origin_center, origin_center) - radius * radius;
+    float const a = glm::length2(ray.direction());
+    float const h = glm::dot(ray.direction(), origin_center);
+    float const c = glm::length2(origin_center) - radius * radius;
 
-    float const discriminant = b * b - 4.0f * a * c;
+    float const discriminant = h * h - a * c;
 
     if (discriminant < 0)
     {
         return -1.0f;
     }
 
-    return (-b - glm::sqrt(discriminant)) / (2.0f * a);
+    return (h - glm::sqrt(discriminant)) / a;
 }
