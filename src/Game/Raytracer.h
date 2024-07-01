@@ -32,11 +32,15 @@ public:
 
     void set_aspect_ratio(float const aspect_ratio);
     void set_image_width(i32 const image_width);
+    void set_samples_per_pixel(i32 const samples_per_pixel);
 
 private:
+    [[nodiscard]] Ray get_ray(i32 const i, i32 const k) const;
     bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const;
 
     [[nodiscard]] glm::vec3 ray_color(Ray const& ray) const;
+
+    [[nodiscard]] glm::vec3 sample_square() const;
 
     inline static std::weak_ptr<Raytracer> m_instance = {};
 
@@ -44,6 +48,9 @@ private:
     inline static std::string output_file = "image.ppm";
 
     std::shared_ptr<Camera> m_camera = {};
+
+    i32 m_samples_per_pixel = 10;
+    float m_pixel_samples_scale = 1.0f;
 
     float m_aspect_ratio = 1.0f;
 

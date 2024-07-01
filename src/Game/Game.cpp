@@ -50,6 +50,7 @@ void Game::initialize()
 
     raytracer->set_image_width(400);
     raytracer->set_aspect_ratio(16.0f / 9.0f);
+    raytracer->set_samples_per_pixel(100);
 
     raytracer->initialize(m_camera_comp);
 

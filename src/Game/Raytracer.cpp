@@ -69,14 +69,15 @@ void Raytracer::render(std::shared_ptr<Camera> const& camera) const
         std::clog << "\rScanlines remaining: " << (m_image_height - k) << ' ' << std::flush;
         for (i32 i = 0; i < m_image_width; ++i)
         {
-            auto pixel_center = m_pixel00_location + (static_cast<float>(i) * m_pixel_delta_u) + (static_cast<float>(k) * m_pixel_delta_v);
-            auto ray_direction = pixel_center - camera_position;
+            glm::vec3 pixel_color = {0.0f, 0.0f, 0.0f};
 
-            Ray ray(camera_position, ray_direction);
+            for (i32 sample = 0; sample < m_samples_per_pixel; ++sample)
+            {
+                Ray ray = get_ray(i, k);
+                pixel_color += ray_color(ray);
+            }
 
-            auto pixel_color = ray_color(ray);
-            glm::ivec3 const color_byte = AK::color_to_byte(pixel_color);
-
+            glm::ivec3 const color_byte = AK::color_to_byte(pixel_color * m_pixel_samples_scale);
             output << color_byte.r << ' ' << color_byte.g << ' ' << color_byte.b << '\n';
         }
     }
@@ -100,9 +101,33 @@ void Raytracer::set_image_width(i32 const image_width)
     m_image_width = image_width;
 }
 
+void Raytracer::set_samples_per_pixel(i32 const samples_per_pixel)
+{
+    m_samples_per_pixel = samples_per_pixel;
+}
+
+Ray Raytracer::get_ray(i32 const i, i32 const k) const
+{
+    // Construct a camera ray originating from the origin and directed at randomly sampled
+    // point around the pixel location i, k.
+
+    glm::vec3 const offset = sample_square();
+    glm::vec3 const pixel_sample = m_pixel00_location + ((static_cast<float>(i) + offset.x) * m_pixel_delta_u)
+                                 + ((static_cast<float>(k) + offset.y) * m_pixel_delta_v);
+
+    // TODO: Cache camera position at the beginning of the render()
+    glm::vec3 const ray_origin = m_camera->get_position();
+
+    glm::vec3 const ray_direction = pixel_sample - ray_origin;
+
+    return {ray_origin, ray_direction};
+}
+
 void Raytracer::initialize(std::shared_ptr<Camera> const& camera)
 {
     m_camera = camera;
+
+    m_pixel_samples_scale = 1.0f / static_cast<float>(m_samples_per_pixel);
 
     // Calculate the image height, and ensure that it's at least 1.
     m_image_height = static_cast<i32>(static_cast<float>(m_image_width) / m_aspect_ratio);
@@ -159,4 +184,10 @@ glm::vec3 Raytracer::ray_color(Ray const& ray) const
     glm::vec3 const unit_direction = glm::normalize(ray.direction());
     float const a = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - a) * glm::vec3(1.0f, 1.0f, 1.0f) + a * glm::vec3(0.5f, 0.7f, 1.0f);
+}
+
+glm::vec3 Raytracer::sample_square() const
+{
+    // Returns the vector to a random point in the [-0.5, -0.5]-[+0.5, +0.5] unit square.
+    return {glm::linearRand(0.0f, 1.0f) - 0.5f, glm::linearRand(0.0f, 1.0f) - 0.5f, 0.0f};
 }
