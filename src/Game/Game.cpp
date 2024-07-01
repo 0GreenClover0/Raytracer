@@ -48,10 +48,15 @@ void Game::initialize()
 
     auto const raytracer = Raytracer::create();
 
+    raytracer->set_image_width(400);
+    raytracer->set_aspect_ratio(16.0f / 9.0f);
+
+    raytracer->initialize(m_camera_comp);
+
     auto const sphere1 = Entity::create("Sphere1");
     sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, 0.0f, -1.0f}, 0.5f, standard_material));
     auto const sphere2 = Entity::create("Sphere2");
     sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -100.5f, -1.0f}, 100.0f, standard_material));
 
-    raytracer->run(m_camera_comp);
+    raytracer->render(m_camera_comp);
 }
