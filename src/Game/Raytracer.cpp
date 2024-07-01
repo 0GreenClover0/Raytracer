@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Ray.h"
 
+#include <glm/gtc/random.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/vec3.hpp>
 
@@ -133,7 +134,7 @@ void Raytracer::initialize(std::shared_ptr<Camera> const& camera)
     // Determine viewport dimensions.
     float constexpr focal_length = 1.0f;
     float constexpr viewport_height = 2.0f;
-    float const viewport_width = viewport_height * (static_cast<float>(m_image_width) / m_image_height);
+    float const viewport_width = viewport_height * (static_cast<float>(m_image_width) / static_cast<float>(m_image_height));
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
     glm::vec3 const viewport_u = {viewport_width, 0.0f, 0.0f};
@@ -175,7 +176,8 @@ glm::vec3 Raytracer::ray_color(Ray const& ray) const
 
     if (hit(ray, Interval(0.0f, AK::INFINITY_F), hit_record))
     {
-        return 0.5f * (hit_record.normal + glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::vec3 const direction = AK::Math::random_on_hemisphere(hit_record.normal);
+        return 0.5f * ray_color(Ray(hit_record.point, direction));
     }
 
     glm::vec3 const unit_direction = glm::normalize(ray.direction());
