@@ -1,6 +1,6 @@
 #include "SphereRaytraced.h"
 
-#include "glm/gtx/norm.hpp"
+#include <glm/gtx/norm.hpp>
 
 std::shared_ptr<SphereRaytraced> SphereRaytraced::create(glm::vec3 const& center, float const radius,
                                                          std::shared_ptr<Material> const& material)
@@ -18,7 +18,7 @@ void SphereRaytraced::draw() const
 {
 }
 
-bool SphereRaytraced::hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const
+bool SphereRaytraced::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const
 {
     glm::vec3 const origin_center = m_center - ray.origin();
     float const a = glm::length2(ray.direction());
@@ -36,11 +36,11 @@ bool SphereRaytraced::hit(Ray const& ray, float const ray_tmin, float const ray_
 
     float root = (h - sqrt_discriminant) / a;
 
-    if (root <= ray_tmin || ray_tmax <= root)
+    if (root <= ray_t.min || ray_t.max <= root)
     {
         root = (h + sqrt_discriminant) / a;
 
-        if (root <= ray_tmin || ray_tmax <= root)
+        if (root <= ray_t.min || ray_t.max <= root)
         {
             return false;
         }

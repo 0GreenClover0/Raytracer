@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AK/Interval.h"
 #include "Drawable.h"
 #include "Game/Ray.h"
 
@@ -29,5 +30,5 @@ public:
     virtual void initialize() override;
     virtual void uninitialize() override;
 
-    virtual bool hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const = 0;
+    virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const = 0;
 };

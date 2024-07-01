@@ -114,16 +114,16 @@ void Raytracer::clear()
     m_hittables.clear();
 }
 
-bool Raytracer::hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const
+bool Raytracer::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const
 {
     HitRecord temp_record = {};
     bool hit_anything = false;
 
-    float closest = ray_tmax;
+    float closest = ray_t.max;
 
     for (auto const& hittable : m_hittables)
     {
-        if (hittable->hit(ray, ray_tmin, closest, temp_record))
+        if (hittable->hit(ray, Interval(ray_t.min, closest), temp_record))
         {
             hit_anything = true;
             closest = temp_record.t;
@@ -138,7 +138,7 @@ glm::vec3 Raytracer::ray_color(Ray const& ray) const
 {
     HitRecord hit_record = {};
 
-    if (hit(ray, 0.0f, AK::INFINITY_F, hit_record))
+    if (hit(ray, Interval(0.0f, AK::INFINITY_F), hit_record))
     {
         return 0.5f * (hit_record.normal + glm::vec3(1.0f, 1.0f, 1.0f));
     }
