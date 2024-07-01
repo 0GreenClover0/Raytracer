@@ -4,6 +4,8 @@
 
 #include <glm/ext/quaternion_geometric.hpp>
 #include <glm/gtc/epsilon.hpp>
+#include <glm/gtc/random.hpp>
+#include <glm/gtx/norm.hpp>
 
 namespace AK
 {
@@ -52,6 +54,34 @@ bool Math::are_ranges_overlapping(glm::vec2 const& a, glm::vec2 const& b)
 {
     // A and B are ranges and it's assumed that a.x <= a.y and b.x <= b.y
     return a.x <= b.y && a.y >= b.x;
+}
+
+glm::vec3 Math::random_in_unit_sphere()
+{
+    while (true)
+    {
+        glm::vec3 point = glm::linearRand(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+        if (glm::length2(point) < 1.0f)
+        {
+            return point;
+        }
+    }
+}
+
+glm::vec3 Math::random_unit_vector()
+{
+    return glm::normalize(random_in_unit_sphere());
+}
+
+glm::vec3 Math::random_on_hemisphere(glm::vec3 const& normal)
+{
+    glm::vec3 const on_unit_sphere = random_unit_vector();
+
+    if (glm::dot(on_unit_sphere, normal) > 0.0f) // In the same hemisphere as the normal
+        return on_unit_sphere;
+
+    return -on_unit_sphere;
 }
 
 bool Math::is_point_inside_rectangle(glm::vec2 const& point, std::array<glm::vec2, 4> const& rectangle_corners)
