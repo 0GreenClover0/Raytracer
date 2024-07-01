@@ -16,6 +16,7 @@ public:
 
 private:
     static glm::vec3 ray_color(Ray const& ray);
+    static bool hit_sphere(glm::vec3 const& center, float const radius, Ray const& ray);
 
     inline static std::string output_directory = "./output/";
     inline static std::string output_file = "image.ppm";

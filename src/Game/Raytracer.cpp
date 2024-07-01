@@ -73,7 +73,25 @@ void Raytracer::run(std::shared_ptr<Camera> const& camera)
 
 glm::vec3 Raytracer::ray_color(Ray const& ray)
 {
+    if (hit_sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, ray))
+    {
+        return {1.0f, 0.0f, 0.0f};
+    }
+
     glm::vec3 const unit_direction = glm::normalize(ray.direction());
     float const a = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - a) * glm::vec3(1.0f, 1.0f, 1.0f) + a * glm::vec3(0.5f, 0.7f, 1.0f);
+}
+
+bool Raytracer::hit_sphere(glm::vec3 const& center, float const radius, Ray const& ray)
+{
+    glm::vec3 const origin_center = center - ray.origin();
+
+    float const a = glm::dot(ray.direction(), ray.direction());
+    float const b = -2.0f * glm::dot(ray.direction(), origin_center);
+    float const c = glm::dot(origin_center, origin_center) - radius * radius;
+
+    float const discriminant = b * b - 4.0f * a * c;
+
+    return discriminant >= 0;
 }
