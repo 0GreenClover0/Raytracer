@@ -12,6 +12,8 @@
 #include "Shader.h"
 
 class Drawable;
+class Ray;
+struct HitRecord;
 
 class Material
 {
@@ -29,6 +31,8 @@ public:
     }
 
     [[nodiscard]] i32 get_render_order() const;
+
+    bool scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3& attenuation, Ray& scattered) const;
 
     std::shared_ptr<Shader> shader;
 
