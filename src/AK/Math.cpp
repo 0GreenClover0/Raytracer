@@ -129,6 +129,11 @@ bool Math::are_nearly_equal(float const x, float const y, float const epsilon)
     return glm::epsilonEqual(x, y, epsilon);
 }
 
+bool Math::are_nearly_equal(glm::vec3 const& x, glm::vec3 const& y, glm::vec3 const& epsilon)
+{
+    return glm::epsilonEqual(x, y, epsilon) == glm::bvec3(true, true, true);
+}
+
 float Math::ease_out_quart(float const x)
 {
     return 1.0f - pow(1.0f - x, 4.0f);

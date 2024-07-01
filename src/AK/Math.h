@@ -23,11 +23,12 @@ public:
     static float get_ranges_overlap_length(glm::vec2 const& a, glm::vec2 const& b);
     static bool are_ranges_overlapping(glm::vec2 const& a, glm::vec2 const& b);
 
-    inline static glm::vec3 random_in_unit_sphere();
-    inline static glm::vec3 random_unit_vector();
+    static glm::vec3 random_in_unit_sphere();
+    static glm::vec3 random_unit_vector();
     static glm::vec3 random_on_hemisphere(glm::vec3 const& normal);
 
     static bool are_nearly_equal(float const x, float const y, float const epsilon = 0.001f);
+    static bool are_nearly_equal(glm::vec3 const& x, glm::vec3 const& y, glm::vec3 const& epsilon = {0.001f, 0.001f, 0.001f});
 
     static float ease_in_out_elastic(float const x);
     static float ease_out_quart(float const x);
