@@ -40,9 +40,9 @@ inline glm::vec4 interpolate_color(glm::vec4 const& start, glm::vec4 const& end,
 
 inline glm::ivec3 color_to_byte(glm::vec3 const& color)
 {
-    i32 const rbyte = static_cast<i32>(255.99f * color.r);
-    i32 const gbyte = static_cast<i32>(255.99f * color.g);
-    i32 const bbyte = static_cast<i32>(255.99f * color.b);
+    i32 const rbyte = static_cast<i32>(256 * glm::clamp(color.r, 0.0f, 0.999f));
+    i32 const gbyte = static_cast<i32>(256 * glm::clamp(color.g, 0.0f, 0.999f));
+    i32 const bbyte = static_cast<i32>(256 * glm::clamp(color.b, 0.0f, 0.999f));
 
     return {rbyte, gbyte, bbyte};
 }
