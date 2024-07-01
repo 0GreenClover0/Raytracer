@@ -11,8 +11,14 @@
 
 void Raytracer::run()
 {
-    i32 constexpr image_width = 256;
-    i32 constexpr image_height = 256;
+    float constexpr aspect_ratio = 16.0f / 9.0f;
+
+    i32 constexpr image_width = 400;
+    i32 image_height = static_cast<i32>(image_width / aspect_ratio);
+    image_height = (image_height < 1) ? 1 : image_height;
+
+    float constexpr viewport_height = 2.0f;
+    float viewport_width = viewport_height * (static_cast<float>(image_width) / image_height);
 
     std::filesystem::path const directory = output_directory;
 
@@ -39,4 +45,5 @@ void Raytracer::run()
     }
 
     std::clog << "\rDone.                 \n";
+    output.close();
 }
