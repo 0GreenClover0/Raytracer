@@ -43,6 +43,9 @@ public:
 
     bool metal = false;
 
+    // Should be in 0.0 - 1.0 range
+    float fuzz = 0.0f;
+
     u32 sector_count = 5;
     u32 stack_count = 5;
     float radius_multiplier = 2.0f;
