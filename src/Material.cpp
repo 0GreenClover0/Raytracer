@@ -1,6 +1,8 @@
 #include "Material.h"
 
 #include "Renderer.h"
+#include "Renderer/Hittable.h"
+#include "Renderer/Ray.h"
 
 std::shared_ptr<Material> Material::create(std::shared_ptr<Shader> const& shader, i32 const render_order, bool const is_gpu_instanced,
                                            bool const is_billboard, bool const is_transparent)
@@ -31,4 +33,9 @@ Material::Material(AK::Badge<Material>, std::shared_ptr<Shader> const& shader, i
 i32 Material::get_render_order() const
 {
     return m_render_order;
+}
+
+bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3& attenuation, Ray& scattered) const
+{
+    return false;
 }
