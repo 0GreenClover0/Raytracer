@@ -2,7 +2,7 @@
 
 #include "AK/Interval.h"
 #include "Drawable.h"
-#include "Game/Ray.h"
+#include "Ray.h"
 
 struct HitRecord
 {

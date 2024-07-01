@@ -9,7 +9,7 @@
 #include "ExampleUIBar.h"
 #include "MeshFactory.h"
 #include "Model.h"
-#include "Raytracer.h"
+#include "Renderer/Raytracer.h"
 #include "Renderer/SphereRaytraced.h"
 #include "ResourceManager.h"
 #include "ScreenText.h"
