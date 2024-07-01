@@ -75,7 +75,7 @@ void Raytracer::render(std::shared_ptr<Camera> const& camera)
             for (i32 sample = 0; sample < m_samples_per_pixel; ++sample)
             {
                 Ray ray = get_ray(i, k);
-                pixel_color += ray_color(ray);
+                pixel_color += ray_color(ray, m_max_depth);
             }
 
             glm::ivec3 const color_byte = AK::color_to_byte(pixel_color * m_pixel_samples_scale);
@@ -105,6 +105,11 @@ void Raytracer::set_image_width(i32 const image_width)
 void Raytracer::set_samples_per_pixel(i32 const samples_per_pixel)
 {
     m_samples_per_pixel = samples_per_pixel;
+}
+
+void Raytracer::set_max_depth(i32 const max_depth)
+{
+    m_max_depth = max_depth;
 }
 
 Ray Raytracer::get_ray(i32 const i, i32 const k) const
@@ -170,14 +175,18 @@ bool Raytracer::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record)
     return hit_anything;
 }
 
-glm::vec3 Raytracer::ray_color(Ray const& ray) const
+glm::vec3 Raytracer::ray_color(Ray const& ray, i32 const depth) const
 {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if (depth <= 0)
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+
     HitRecord hit_record = {};
 
     if (hit(ray, Interval(0.0f, AK::INFINITY_F), hit_record))
     {
         glm::vec3 const direction = AK::Math::random_on_hemisphere(hit_record.normal);
-        return 0.5f * ray_color(Ray(hit_record.point, direction));
+        return 0.5f * ray_color(Ray(hit_record.point, direction), depth - 1);
     }
 
     glm::vec3 const unit_direction = glm::normalize(ray.direction());

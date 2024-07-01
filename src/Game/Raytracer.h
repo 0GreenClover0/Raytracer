@@ -33,12 +33,13 @@ public:
     void set_aspect_ratio(float const aspect_ratio);
     void set_image_width(i32 const image_width);
     void set_samples_per_pixel(i32 const samples_per_pixel);
+    void set_max_depth(i32 const max_depth);
 
 private:
     [[nodiscard]] Ray get_ray(i32 const i, i32 const k) const;
     bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const;
 
-    [[nodiscard]] glm::vec3 ray_color(Ray const& ray) const;
+    [[nodiscard]] glm::vec3 ray_color(Ray const& ray, i32 const depth) const;
 
     [[nodiscard]] glm::vec3 sample_square() const;
 
@@ -52,6 +53,8 @@ private:
 
     i32 m_samples_per_pixel = 10;
     float m_pixel_samples_scale = 1.0f;
+
+    i32 m_max_depth = 10;
 
     float m_aspect_ratio = 1.0f;
 
