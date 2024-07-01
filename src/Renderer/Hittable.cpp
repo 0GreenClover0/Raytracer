@@ -1,6 +1,6 @@
 #include "Hittable.h"
 
-#include "Game/Raytracer.h"
+#include "Raytracer.h"
 
 Hittable::Hittable(std::shared_ptr<Material> const& material) : Drawable(material)
 {
