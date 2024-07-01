@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Types.h"
+
 #include <array>
 
 #include <glm/vec2.hpp>
-
-#include "Types.h"
+#include <glm/vec3.hpp>
 
 namespace AK
 {
@@ -21,6 +22,10 @@ public:
 
     static float get_ranges_overlap_length(glm::vec2 const& a, glm::vec2 const& b);
     static bool are_ranges_overlapping(glm::vec2 const& a, glm::vec2 const& b);
+
+    inline static glm::vec3 random_in_unit_sphere();
+    inline static glm::vec3 random_unit_vector();
+    static glm::vec3 random_on_hemisphere(glm::vec3 const& normal);
 
     static bool are_nearly_equal(float const x, float const y, float const epsilon = 0.001f);
 
