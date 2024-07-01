@@ -1,6 +1,7 @@
 #include "Raytracer.h"
 
 #include "AK/AK.h"
+#include "AK/Math.h"
 #include "AK/Types.h"
 #include "Camera.h"
 #include "Ray.h"
@@ -14,7 +15,16 @@
 
 std::shared_ptr<Raytracer> Raytracer::create()
 {
-    return std::make_shared<Raytracer>(AK::Badge<Raytracer> {});
+    auto raytracer = std::make_shared<Raytracer>(AK::Badge<Raytracer> {});
+
+    if (!m_instance.expired())
+    {
+        Debug::log("Instance of Raytracer already exists in the scene.", DebugType::Error);
+    }
+
+    m_instance = raytracer;
+
+    return raytracer;
 }
 
 Raytracer::Raytracer(AK::Badge<Raytracer>)
@@ -39,7 +49,7 @@ void Raytracer::unregister_hittable(std::shared_ptr<Hittable> const& hittable)
     AK::swap_and_erase(m_hittables, hittable);
 }
 
-void Raytracer::run(std::shared_ptr<Camera> const& camera)
+void Raytracer::run(std::shared_ptr<Camera> const& camera) const
 {
     float constexpr aspect_ratio = 16.0f / 9.0f;
 
@@ -124,34 +134,16 @@ bool Raytracer::hit(Ray const& ray, float const ray_tmin, float const ray_tmax, 
     return hit_anything;
 }
 
-glm::vec3 Raytracer::ray_color(Ray const& ray)
+glm::vec3 Raytracer::ray_color(Ray const& ray) const
 {
-    float const hit = hit_sphere(glm::vec3(0.0f, 0.0f, -1.0f), 0.5f, ray);
-    if (hit > 0.0f)
+    HitRecord hit_record = {};
+
+    if (hit(ray, 0.0f, AK::INFINITY_F, hit_record))
     {
-        glm::vec3 const normal = glm::normalize(ray.at(hit) - glm::vec3(0.0f, 0.0f, -1.0f));
-        return 0.5f * glm::vec3(normal.r + 1.0f, normal.y + 1.0f, normal.z + 1.0f);
+        return 0.5f * (hit_record.normal + glm::vec3(1.0f, 1.0f, 1.0f));
     }
 
     glm::vec3 const unit_direction = glm::normalize(ray.direction());
     float const a = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - a) * glm::vec3(1.0f, 1.0f, 1.0f) + a * glm::vec3(0.5f, 0.7f, 1.0f);
-}
-
-float Raytracer::hit_sphere(glm::vec3 const& center, float const radius, Ray const& ray)
-{
-    glm::vec3 const origin_center = center - ray.origin();
-
-    float const a = glm::length2(ray.direction());
-    float const h = glm::dot(ray.direction(), origin_center);
-    float const c = glm::length2(origin_center) - radius * radius;
-
-    float const discriminant = h * h - a * c;
-
-    if (discriminant < 0)
-    {
-        return -1.0f;
-    }
-
-    return (h - glm::sqrt(discriminant)) / a;
 }

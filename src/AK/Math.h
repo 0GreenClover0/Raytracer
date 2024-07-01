@@ -9,6 +9,9 @@
 namespace AK
 {
 
+float constexpr INFINITY_F = std::numeric_limits<float>::infinity();
+float constexpr PI_F = 3.1415926535897932385f;
+
 class Math
 {
 public:
