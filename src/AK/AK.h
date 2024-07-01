@@ -38,11 +38,26 @@ inline glm::vec4 interpolate_color(glm::vec4 const& start, glm::vec4 const& end,
     return {r, g, b, a};
 }
 
+inline float linear_to_gamma(float const linear_component)
+{
+    if (linear_component > 0.0f)
+        return glm::sqrt(linear_component);
+
+    return 0.0f;
+}
+
 inline glm::ivec3 color_to_byte(glm::vec3 const& color)
 {
-    i32 const rbyte = static_cast<i32>(256 * glm::clamp(color.r, 0.0f, 0.999f));
-    i32 const gbyte = static_cast<i32>(256 * glm::clamp(color.g, 0.0f, 0.999f));
-    i32 const bbyte = static_cast<i32>(256 * glm::clamp(color.b, 0.0f, 0.999f));
+    glm::vec3 saved_color = color;
+
+    // Gamma correct
+    saved_color.r = linear_to_gamma(saved_color.r);
+    saved_color.g = linear_to_gamma(saved_color.g);
+    saved_color.b = linear_to_gamma(saved_color.b);
+
+    i32 const rbyte = static_cast<i32>(256 * glm::clamp(saved_color.r, 0.0f, 0.999f));
+    i32 const gbyte = static_cast<i32>(256 * glm::clamp(saved_color.g, 0.0f, 0.999f));
+    i32 const bbyte = static_cast<i32>(256 * glm::clamp(saved_color.b, 0.0f, 0.999f));
 
     return {rbyte, gbyte, bbyte};
 }
