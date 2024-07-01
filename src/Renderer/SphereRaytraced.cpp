@@ -48,7 +48,8 @@ bool SphereRaytraced::hit(Ray const& ray, float const ray_tmin, float const ray_
 
     hit_record.t = root;
     hit_record.point = ray.at(root);
-    hit_record.normal = (hit_record.point - m_center) / m_radius;
+    glm::vec3 const outward_normal = (hit_record.point - m_center) / m_radius;
+    hit_record.set_face_normal(ray, outward_normal);
 
     return true;
 }
