@@ -26,5 +26,8 @@ public:
     explicit Hittable(std::shared_ptr<Material> const& material);
     ~Hittable() override = default;
 
+    virtual void initialize() override;
+    virtual void uninitialize() override;
+
     virtual bool hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const = 0;
 };
