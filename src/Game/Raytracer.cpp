@@ -49,7 +49,7 @@ void Raytracer::unregister_hittable(std::shared_ptr<Hittable> const& hittable)
     AK::swap_and_erase(m_hittables, hittable);
 }
 
-void Raytracer::render(std::shared_ptr<Camera> const& camera) const
+void Raytracer::render(std::shared_ptr<Camera> const& camera)
 {
     std::filesystem::path const directory = output_directory;
 
@@ -62,7 +62,7 @@ void Raytracer::render(std::shared_ptr<Camera> const& camera) const
 
     output << "P3\n" << m_image_width << ' ' << m_image_height << "\n255\n";
 
-    glm::vec3 camera_position = m_camera->get_position();
+    m_camera_position_this_frame = m_camera->get_position();
 
     for (i32 k = 0; k < m_image_height; ++k)
     {
@@ -115,12 +115,9 @@ Ray Raytracer::get_ray(i32 const i, i32 const k) const
     glm::vec3 const pixel_sample = m_pixel00_location + ((static_cast<float>(i) + offset.x) * m_pixel_delta_u)
                                  + ((static_cast<float>(k) + offset.y) * m_pixel_delta_v);
 
-    // TODO: Cache camera position at the beginning of the render()
-    glm::vec3 const ray_origin = m_camera->get_position();
+    glm::vec3 const ray_direction = pixel_sample - m_camera_position_this_frame;
 
-    glm::vec3 const ray_direction = pixel_sample - ray_origin;
-
-    return {ray_origin, ray_direction};
+    return {m_camera_position_this_frame, ray_direction};
 }
 
 void Raytracer::initialize(std::shared_ptr<Camera> const& camera)
