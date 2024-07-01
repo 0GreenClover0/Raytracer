@@ -24,15 +24,14 @@ public:
     void register_hittable(std::shared_ptr<Hittable> const& hittable);
     void unregister_hittable(std::shared_ptr<Hittable> const& hittable);
 
-    void run(std::shared_ptr<Camera> const& camera);
+    void run(std::shared_ptr<Camera> const& camera) const;
 
     void clear();
 
 private:
     bool hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const;
 
-    static glm::vec3 ray_color(Ray const& ray);
-    static float hit_sphere(glm::vec3 const& center, float const radius, Ray const& ray);
+    [[nodiscard]] glm::vec3 ray_color(Ray const& ray) const;
 
     inline static std::weak_ptr<Raytracer> m_instance = {};
 

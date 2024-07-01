@@ -10,6 +10,7 @@
 #include "MeshFactory.h"
 #include "Model.h"
 #include "Raytracer.h"
+#include "Renderer/SphereRaytraced.h"
 #include "ResourceManager.h"
 #include "ScreenText.h"
 #include "SoundListener.h"
@@ -46,5 +47,11 @@ void Game::initialize()
     m_camera_comp->update();
 
     auto const raytracer = Raytracer::create();
+
+    auto const sphere1 = Entity::create("Sphere1");
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, 0.0f, -1.0f}, 0.5f, standard_material));
+    auto const sphere2 = Entity::create("Sphere2");
+    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -100.5f, -1.0f}, 100.0f, standard_material));
+
     raytracer->run(m_camera_comp);
 }
