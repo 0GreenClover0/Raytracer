@@ -55,10 +55,31 @@ void Game::initialize()
 
     raytracer->initialize(m_camera_comp);
 
-    auto const sphere1 = Entity::create("Sphere1");
-    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, 0.0f, -1.0f}, 0.5f, standard_material));
+    auto const material_ground = Material::create(standard_shader);
+    material_ground->color = {0.8f, 0.8f, 0.0f, 1.0f};
+
+    auto const material_center = Material::create(standard_shader);
+    material_center->color = {0.1f, 0.2f, 0.5f, 1.0f};
+
+    auto const material_left = Material::create(standard_shader);
+    material_left->color = {0.8f, 0.8f, 0.8f, 1.0f};
+    material_left->metal = true;
+
+    auto const material_right = Material::create(standard_shader);
+    material_right->color = {0.8f, 0.6f, 0.2f, 1.0f};
+    material_right->metal = true;
+
     auto const sphere2 = Entity::create("Sphere2");
-    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -100.5f, -1.0f}, 100.0f, standard_material));
+    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -100.5f, -1.0f}, 100.0f, material_ground));
+
+    auto const sphere1 = Entity::create("Sphere1");
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, 0.0f, -1.2f}, 0.5f, material_center));
+
+    auto const sphere3 = Entity::create("Sphere3");
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-1.0f, 0.0f, -1.0f}, 0.5f, material_left));
+
+    auto const sphere4 = Entity::create("Sphere4");
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({1.0f, 0.0f, -1.0f}, 0.5f, material_right));
 
     raytracer->render(m_camera_comp);
 }

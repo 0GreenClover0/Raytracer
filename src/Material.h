@@ -41,6 +41,8 @@ public:
     float specular = 1.0f;
     float shininess = 128.0f;
 
+    bool metal = false;
+
     u32 sector_count = 5;
     u32 stack_count = 5;
     float radius_multiplier = 2.0f;

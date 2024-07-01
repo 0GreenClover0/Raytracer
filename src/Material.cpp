@@ -37,14 +37,24 @@ i32 Material::get_render_order() const
 
 bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3& attenuation, Ray& scattered) const
 {
-    glm::vec3 scatter_direction = hit_record.normal + AK::Math::random_unit_vector();
-
-    if (AK::Math::are_nearly_equal(scatter_direction, glm::vec3(0.0f, 0.0f, 0.0f)))
+    if (metal)
     {
-        scatter_direction = hit_record.normal;
+        glm::vec3 const reflected = glm::reflect(ray_in.direction(), hit_record.normal);
+        scattered = Ray(hit_record.point, reflected);
+        attenuation = color;
+        return true;
     }
+    else
+    {
+        glm::vec3 scatter_direction = hit_record.normal + AK::Math::random_unit_vector();
 
-    scattered = Ray(hit_record.point, scatter_direction);
-    attenuation = color;
-    return true;
+        if (AK::Math::are_nearly_equal(scatter_direction, glm::vec3(0.0f, 0.0f, 0.0f)))
+        {
+            scatter_direction = hit_record.normal;
+        }
+
+        scattered = Ray(hit_record.point, scatter_direction);
+        attenuation = color;
+        return true;
+    }
 }

@@ -179,14 +179,19 @@ glm::vec3 Raytracer::ray_color(Ray const& ray, i32 const depth) const
 {
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0)
-        return glm::vec3(0.0f, 0.0f, 0.0f);
+        return {0.0f, 0.0f, 0.0f};
 
     HitRecord hit_record = {};
 
     if (hit(ray, Interval(0.001f, AK::INFINITY_F), hit_record))
     {
-        glm::vec3 const direction = hit_record.normal + AK::Math::random_unit_vector();
-        return 0.5f * ray_color(Ray(hit_record.point, direction), depth - 1);
+        Ray scattered;
+        glm::vec3 attenuation;
+
+        if (hit_record.material->scatter(ray, hit_record, attenuation, scattered))
+            return attenuation * ray_color(scattered, depth - 1);
+
+        return {0.0f, 0.0f, 0.0f};
     }
 
     glm::vec3 const unit_direction = glm::normalize(ray.direction());
