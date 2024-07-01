@@ -26,7 +26,7 @@ public:
     void unregister_hittable(std::shared_ptr<Hittable> const& hittable);
 
     void initialize(std::shared_ptr<Camera> const& camera);
-    void render(std::shared_ptr<Camera> const& camera) const;
+    void render(std::shared_ptr<Camera> const& camera);
 
     void clear();
 
@@ -48,6 +48,7 @@ private:
     inline static std::string output_file = "image.ppm";
 
     std::shared_ptr<Camera> m_camera = {};
+    glm::vec3 m_camera_position_this_frame = {};
 
     i32 m_samples_per_pixel = 10;
     float m_pixel_samples_scale = 1.0f;
