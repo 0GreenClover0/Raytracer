@@ -12,6 +12,33 @@
 #include <fstream>
 #include <iostream>
 
+std::shared_ptr<Raytracer> Raytracer::create()
+{
+    return std::make_shared<Raytracer>(AK::Badge<Raytracer> {});
+}
+
+Raytracer::Raytracer(AK::Badge<Raytracer>)
+{
+}
+
+std::shared_ptr<Raytracer> Raytracer::get_instance()
+{
+    if (m_instance.expired())
+        return nullptr;
+
+    return m_instance.lock();
+}
+
+void Raytracer::register_hittable(std::shared_ptr<Hittable> const& hittable)
+{
+    m_hittables.emplace_back(hittable);
+}
+
+void Raytracer::unregister_hittable(std::shared_ptr<Hittable> const& hittable)
+{
+    AK::swap_and_erase(m_hittables, hittable);
+}
+
 void Raytracer::run(std::shared_ptr<Camera> const& camera)
 {
     float constexpr aspect_ratio = 16.0f / 9.0f;
@@ -70,6 +97,31 @@ void Raytracer::run(std::shared_ptr<Camera> const& camera)
 
     std::clog << "\rDone.                 \n";
     output.close();
+}
+
+void Raytracer::clear()
+{
+    m_hittables.clear();
+}
+
+bool Raytracer::hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const
+{
+    HitRecord temp_record = {};
+    bool hit_anything = false;
+
+    float closest = ray_tmax;
+
+    for (auto const& hittable : m_hittables)
+    {
+        if (hittable->hit(ray, ray_tmin, closest, temp_record))
+        {
+            hit_anything = true;
+            closest = temp_record.t;
+            hit_record = temp_record;
+        }
+    }
+
+    return hit_anything;
 }
 
 glm::vec3 Raytracer::ray_color(Ray const& ray)

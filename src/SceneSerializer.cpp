@@ -31,6 +31,8 @@
 #include "Particle.h"
 #include "ParticleSystem.h"
 #include "PointLight.h"
+#include "Renderer/Hittable.h"
+#include "Renderer/SphereRaytraced.h"
 #include "ScreenText.h"
 #include "ShaderFactory.h"
 #include "Sound.h"
@@ -156,7 +158,23 @@ void SceneSerializer::auto_serialize_component(YAML::Emitter& out, std::shared_p
     {
         out << YAML::BeginMap;
         // # Put new Drawable kid here
-        if (auto const screentext = std::dynamic_pointer_cast<class ScreenText>(component); screentext != nullptr)
+        if (auto const hittable = std::dynamic_pointer_cast<class Hittable>(component); hittable != nullptr)
+        {
+            // # Put new Hittable kid here
+            if (auto const sphereraytraced = std::dynamic_pointer_cast<class SphereRaytraced>(component); sphereraytraced != nullptr)
+            {
+                out << YAML::Key << "ComponentName" << YAML::Value << "SphereRaytracedComponent";
+                out << YAML::Key << "guid" << YAML::Value << sphereraytraced->guid;
+                out << YAML::Key << "custom_name" << YAML::Value << sphereraytraced->custom_name;
+            }
+            else
+            {
+                out << YAML::Key << "ComponentName" << YAML::Value << "HittableComponent";
+                out << YAML::Key << "guid" << YAML::Value << hittable->guid;
+                out << YAML::Key << "custom_name" << YAML::Value << hittable->custom_name;
+            }
+        }
+        else if (auto const screentext = std::dynamic_pointer_cast<class ScreenText>(component); screentext != nullptr)
         {
             out << YAML::Key << "ComponentName" << YAML::Value << "ScreenTextComponent";
             out << YAML::Key << "guid" << YAML::Value << screentext->guid;

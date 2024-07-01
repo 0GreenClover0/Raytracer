@@ -45,6 +45,6 @@ void Game::initialize()
     m_camera_comp->set_fov(glm::radians(22.0f));
     m_camera_comp->update();
 
-    auto const raytracer = std::make_shared<Raytracer>();
+    auto const raytracer = Raytracer::create();
     raytracer->run(m_camera_comp);
 }
