@@ -42,9 +42,12 @@ public:
     float shininess = 128.0f;
 
     bool metal = false;
+    bool dielectric = false;
 
     // Should be in 0.0 - 1.0 range
     float fuzz = 0.0f;
+
+    float refraction_index = 0.0f;
 
     u32 sector_count = 5;
     u32 stack_count = 5;
