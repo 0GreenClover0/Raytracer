@@ -37,5 +37,14 @@ i32 Material::get_render_order() const
 
 bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3& attenuation, Ray& scattered) const
 {
-    return false;
+    glm::vec3 scatter_direction = hit_record.normal + AK::Math::random_unit_vector();
+
+    if (AK::Math::are_nearly_equal(scatter_direction, glm::vec3(0.0f, 0.0f, 0.0f)))
+    {
+        scatter_direction = hit_record.normal;
+    }
+
+    scattered = Ray(hit_record.point, scatter_direction);
+    attenuation = color;
+    return true;
 }
