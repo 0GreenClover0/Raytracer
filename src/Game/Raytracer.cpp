@@ -183,7 +183,7 @@ glm::vec3 Raytracer::ray_color(Ray const& ray, i32 const depth) const
 
     HitRecord hit_record = {};
 
-    if (hit(ray, Interval(0.0f, AK::INFINITY_F), hit_record))
+    if (hit(ray, Interval(0.001f, AK::INFINITY_F), hit_record))
     {
         glm::vec3 const direction = AK::Math::random_on_hemisphere(hit_record.normal);
         return 0.5f * ray_color(Ray(hit_record.point, direction), depth - 1);
