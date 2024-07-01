@@ -36,8 +36,8 @@ void Game::initialize()
     ui_material->casts_shadows = false;
 
     m_camera = Entity::create("Camera");
-    m_camera->transform->set_local_position(glm::vec3(0.0f, 17.0f, 13.0f));
-    m_camera->transform->set_euler_angles(glm::vec3(-50.0f, 0.0f, 0.0f));
+    m_camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
+    m_camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
     m_camera->add_component<SoundListener>(SoundListener::create());
 
     m_camera_comp = m_camera->add_component(Camera::create());
@@ -46,5 +46,5 @@ void Game::initialize()
     m_camera_comp->update();
 
     auto const raytracer = std::make_shared<Raytracer>();
-    raytracer->run();
+    raytracer->run(m_camera_comp);
 }
