@@ -15,6 +15,9 @@
 namespace AK
 {
 
+static std::random_device random_device;
+static std::default_random_engine random_engine(random_device());
+
 #pragma region GUID_creation
 
 // https://lowrey.me/guid-generation-in-c-11/
@@ -102,6 +105,20 @@ inline float random_float(float const min, float const max)
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(min, max);
     return dis(gen);
+}
+
+inline float random_float_fast()
+{
+    std::uniform_real_distribution random_floats(0.0f, 1.0f);
+
+    return random_floats(random_engine);
+}
+
+inline float random_float_fast(float const min_inclusive, float const max_exclusive)
+{
+    std::uniform_real_distribution random_floats(min_inclusive, max_exclusive);
+
+    return random_floats(random_engine);
 }
 
 inline bool random_bool()
