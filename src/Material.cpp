@@ -39,10 +39,11 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
 {
     if (metal)
     {
-        glm::vec3 const reflected = glm::reflect(ray_in.direction(), hit_record.normal);
+        glm::vec3 reflected = glm::reflect(ray_in.direction(), hit_record.normal);
+        reflected = glm::normalize(reflected) + (fuzz * AK::Math::random_unit_vector());
         scattered = Ray(hit_record.point, reflected);
         attenuation = color;
-        return true;
+        return glm::dot(scattered.direction(), hit_record.normal) > 0.0f;
     }
     else
     {
