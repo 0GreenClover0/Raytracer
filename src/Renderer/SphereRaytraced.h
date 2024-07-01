@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AK/Interval.h"
 #include "Hittable.h"
 
 class SphereRaytraced final : public Hittable
@@ -10,7 +11,7 @@ public:
 
     virtual void draw() const override;
 
-    virtual bool hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const override;
+    virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const override;
 
 private:
     glm::vec3 m_center;

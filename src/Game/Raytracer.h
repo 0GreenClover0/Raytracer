@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AK/Badge.h"
+#include "AK/Interval.h"
 #include "Ray.h"
 #include "Renderer/Hittable.h"
 
@@ -29,7 +30,7 @@ public:
     void clear();
 
 private:
-    bool hit(Ray const& ray, float const ray_tmin, float const ray_tmax, HitRecord& hit_record) const;
+    bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const;
 
     [[nodiscard]] glm::vec3 ray_color(Ray const& ray) const;
 
