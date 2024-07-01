@@ -45,6 +45,17 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         attenuation = color;
         return glm::dot(scattered.direction(), hit_record.normal) > 0.0f;
     }
+    else if (dielectric)
+    {
+        attenuation = glm::vec3(1.0f, 1.0f, 1.0f);
+        float const ri = hit_record.front_face ? (1.0f / refraction_index) : refraction_index;
+
+        glm::vec3 const unit_direction = glm::normalize(ray_in.direction());
+        glm::vec3 const refracted = glm::refract(unit_direction, hit_record.normal, ri);
+
+        scattered = Ray(hit_record.point, refracted);
+        return true;
+    }
     else
     {
         glm::vec3 scatter_direction = hit_record.normal + AK::Math::random_unit_vector();
