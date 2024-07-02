@@ -19,6 +19,9 @@ void SphereRaytraced::initialize()
     Hittable::initialize();
 
     m_center = entity->transform->get_position();
+
+    glm::vec3 const radius_vec = {m_radius, m_radius, m_radius};
+    m_bbox = AABB(m_center - radius_vec, m_center + radius_vec);
 }
 
 void SphereRaytraced::update()

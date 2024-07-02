@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AK/AABB.h"
 #include "AK/Interval.h"
 #include "Drawable.h"
 #include "Ray.h"
@@ -32,4 +33,9 @@ public:
     virtual void uninitialize() override;
 
     virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const = 0;
+
+    AABB bounding_box() const;
+
+protected:
+    AABB m_bbox;
 };

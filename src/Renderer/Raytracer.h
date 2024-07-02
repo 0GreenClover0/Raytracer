@@ -66,4 +66,6 @@ private:
     glm::vec3 m_pixel_delta_v = {};
 
     std::vector<std::shared_ptr<Hittable>> m_hittables = {};
+
+    AABB m_bbox = {};
 };

@@ -1,5 +1,7 @@
 #include "Interval.h"
 
+#include "Math.h"
+
 Interval const Interval::empty = Interval(+AK::INFINITY_F, -AK::INFINITY_F);
 Interval const Interval::whole = Interval(-AK::INFINITY_F, +AK::INFINITY_F);
 

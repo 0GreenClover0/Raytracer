@@ -19,3 +19,8 @@ void Hittable::uninitialize()
 
     Raytracer::get_instance()->unregister_hittable(static_pointer_cast<Hittable>(shared_from_this()));
 }
+
+AABB Hittable::bounding_box() const
+{
+    return m_bbox;
+}
