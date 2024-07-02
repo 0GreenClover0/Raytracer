@@ -3,6 +3,7 @@
 #include "AK/AK.h"
 #include "AK/Math.h"
 #include "AK/Types.h"
+#include "BVHNode.h"
 #include "Camera.h"
 #include "Ray.h"
 
@@ -173,6 +174,8 @@ void Raytracer::initialize(std::shared_ptr<Camera> const& camera)
     glm::vec3 const viewport_upper_left =
         m_camera->get_position() - focal_length * m_camera->get_front() - viewport_u / 2.0f - viewport_v / 2.0f;
     m_pixel00_location = viewport_upper_left + 0.5f * (m_pixel_delta_u + m_pixel_delta_v);
+
+    m_root = std::make_shared<BVHNode>(m_hittables, 0, m_hittables.size());
 }
 
 bool Raytracer::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const
@@ -180,16 +183,10 @@ bool Raytracer::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record)
     HitRecord temp_record = {};
     bool hit_anything = false;
 
-    float closest = ray_t.max;
-
-    for (auto const& hittable : m_hittables)
+    if (m_root->hit(ray, Interval(ray_t.min, ray_t.max), temp_record))
     {
-        if (hittable->hit(ray, Interval(ray_t.min, closest), temp_record))
-        {
-            hit_anything = true;
-            closest = temp_record.t;
-            hit_record = temp_record;
-        }
+        hit_anything = true;
+        hit_record = temp_record;
     }
 
     return hit_anything;

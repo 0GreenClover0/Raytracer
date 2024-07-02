@@ -56,8 +56,6 @@ void Game::initialize()
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
 
-    raytracer->initialize(m_camera_comp);
-
     auto const material_ground = Material::create(standard_shader);
     material_ground->color = {0.5f, 0.5f, 0.5f, 1.0f};
 
@@ -177,6 +175,8 @@ void Game::initialize()
 
     //auto const sphere2 = Entity::create("Sphere2");
     //sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({r, 0.0f, -1.0f}, r, material_r));
+
+    raytracer->initialize(m_camera_comp);
 
     raytracer->render(m_camera_comp);
 }

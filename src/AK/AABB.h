@@ -6,9 +6,9 @@
 
 struct AABB
 {
-    Interval x;
-    Interval y;
-    Interval z;
+    Interval x = {};
+    Interval y = {};
+    Interval z = {};
 
     AABB() = default;
 
