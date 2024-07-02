@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+class BVHNode;
 class Hittable;
 class Camera;
 
@@ -65,7 +66,9 @@ private:
     glm::vec3 m_pixel_delta_u = {};
     glm::vec3 m_pixel_delta_v = {};
 
+    std::shared_ptr<BVHNode> m_root = {};
+
     std::vector<std::shared_ptr<Hittable>> m_hittables = {};
 
-    AABB m_bbox = {};
+    AABB m_bbox = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f)};
 };
