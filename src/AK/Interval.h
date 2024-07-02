@@ -10,6 +10,7 @@ public:
 
     Interval();
     Interval(float const min, float const max);
+    Interval(Interval const& a, Interval const& b);
 
     [[nodiscard]] float size() const;
     [[nodiscard]] bool contains(float const x) const;
