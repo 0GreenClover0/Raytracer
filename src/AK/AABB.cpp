@@ -11,6 +11,13 @@ AABB::AABB(glm::vec3 const& a, glm::vec3 const& b)
     z = (a.z <= b.z) ? Interval(a.z, b.z) : Interval(b.z, a.z);
 }
 
+AABB::AABB(AABB const& box0, AABB const& box1)
+{
+    x = Interval(box0.x, box1.x);
+    y = Interval(box0.y, box1.y);
+    z = Interval(box0.z, box1.z);
+}
+
 Interval const& AABB::axis_interval(i32 const n) const
 {
     if (n == 1)
