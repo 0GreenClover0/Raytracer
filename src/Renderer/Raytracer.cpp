@@ -10,6 +10,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/vec3.hpp>
 
+#include <execution>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -65,22 +66,34 @@ void Raytracer::render(std::shared_ptr<Camera> const& camera)
 
     m_camera_position_this_frame = m_camera->get_position();
 
-    for (i32 k = 0; k < m_image_height; ++k)
-    {
-        std::clog << "\rScanlines remaining: " << (m_image_height - k) << ' ' << std::flush;
-        for (i32 i = 0; i < m_image_width; ++i)
+    std::vector<std::string> scanlines = {};
+    scanlines.resize(m_image_height * m_image_width);
+
+    auto range = std::views::iota(0, m_image_height);
+    std::for_each(std::execution::par_unseq, range.begin(), range.end(), [&](size_t const k) {
+        std::clog << "Scanline: " << (m_image_height - k) << '\n';
+
+        i32 const index = static_cast<i32>(k) * m_image_width;
+
+        for (size_t i = 0; i < m_image_width; ++i)
         {
             glm::vec3 pixel_color = {0.0f, 0.0f, 0.0f};
 
             for (i32 sample = 0; sample < m_samples_per_pixel; ++sample)
             {
-                Ray ray = get_ray(i, k);
+                Ray ray = get_ray(static_cast<i32>(i), static_cast<i32>(k));
                 pixel_color += ray_color(ray, m_max_depth);
             }
 
             glm::ivec3 const color_byte = AK::color_to_byte(pixel_color * m_pixel_samples_scale);
-            output << color_byte.r << ' ' << color_byte.g << ' ' << color_byte.b << '\n';
+            scanlines[index + i] =
+                std::to_string(color_byte.r) + ' ' + std::to_string(color_byte.g) + ' ' + std::to_string(color_byte.b) + '\n';
         }
+    });
+
+    for (auto const& line : scanlines)
+    {
+        output << line;
     }
 
     std::clog << "\rDone.                 \n";
