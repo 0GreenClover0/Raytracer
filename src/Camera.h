@@ -38,6 +38,7 @@ public:
 
     glm::vec3 get_front() const;
     glm::vec3 get_up() const;
+    glm::vec3 get_right() const;
 
     Frustum get_frustum();
 

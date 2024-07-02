@@ -103,6 +103,11 @@ glm::vec3 Camera::get_up() const
     return entity->transform->get_up();
 }
 
+glm::vec3 Camera::get_right() const
+{
+    return entity->transform->get_right();
+}
+
 Frustum Camera::get_frustum()
 {
     update_internals();
