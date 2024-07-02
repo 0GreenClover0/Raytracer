@@ -1,17 +1,29 @@
 #include "SphereRaytraced.h"
 
+#include "Entity.h"
+
 #include <glm/gtx/norm.hpp>
 
-std::shared_ptr<SphereRaytraced> SphereRaytraced::create(glm::vec3 const& center, float const radius,
-                                                         std::shared_ptr<Material> const& material)
+std::shared_ptr<SphereRaytraced> SphereRaytraced::create(float const radius, std::shared_ptr<Material> const& material)
 {
-    return std::make_shared<SphereRaytraced>(AK::Badge<SphereRaytraced> {}, center, radius, material);
+    return std::make_shared<SphereRaytraced>(AK::Badge<SphereRaytraced> {}, radius, material);
 }
 
-SphereRaytraced::SphereRaytraced(AK::Badge<SphereRaytraced>, glm::vec3 const& center, float const radius,
-                                 std::shared_ptr<Material> const& material)
-    : Hittable(material), m_center(center), m_radius(radius)
+SphereRaytraced::SphereRaytraced(AK::Badge<SphereRaytraced>, float const radius, std::shared_ptr<Material> const& material)
+    : Hittable(material), m_radius(radius)
 {
+}
+
+void SphereRaytraced::initialize()
+{
+    Hittable::initialize();
+
+    m_center = entity->transform->get_position();
+}
+
+void SphereRaytraced::update()
+{
+    m_center = entity->transform->get_position();
 }
 
 void SphereRaytraced::draw() const
@@ -21,8 +33,9 @@ void SphereRaytraced::draw() const
 bool SphereRaytraced::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const
 {
     glm::vec3 const origin_center = m_center - ray.origin();
-    float const a = glm::length2(ray.direction());
-    float const h = glm::dot(ray.direction(), origin_center);
+    glm::vec3 const direction = ray.direction();
+    float const a = glm::length2(direction);
+    float const h = glm::dot(direction, origin_center);
     float const c = glm::length2(origin_center) - m_radius * m_radius;
 
     float const discriminant = h * h - a * c;

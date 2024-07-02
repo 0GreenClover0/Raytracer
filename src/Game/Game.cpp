@@ -62,7 +62,8 @@ void Game::initialize()
     material_ground->color = {0.5f, 0.5f, 0.5f, 1.0f};
 
     auto const ground = Entity::create("Ground");
-    ground->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -1000.0f, -0.0f}, 1000.0f, material_ground));
+    ground->transform->set_position({0.0f, -1000.0f, -0.0f});
+    ground->add_component<SphereRaytraced>(SphereRaytraced::create(1000.0f, material_ground));
 
     for (i32 a = -11; a < 11; a++)
     {
@@ -74,15 +75,16 @@ void Game::initialize()
             if (glm::length(center - glm::vec3(4.0f, 0.2f, 0.0f)) > 0.9f)
             {
                 std::shared_ptr<Material> sphere_material = Material::create(standard_shader);
+                auto const sphere = Entity::create("Sphere");
+                sphere->transform->set_position(center);
 
                 if (choose_mat < 0.8f)
                 {
                     glm::vec3 rand1 = glm::linearRand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
                     glm::vec3 rand2 = glm::linearRand(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
                     sphere_material->color = glm::vec4(rand1 * rand2, 1.0f);
-                    auto const sphere = Entity::create("Sphere");
-                    sphere->transform->set_position(center);
-                    sphere->add_component<SphereRaytraced>(SphereRaytraced::create(center, 0.2f, sphere_material));
+
+                    sphere->add_component<SphereRaytraced>(SphereRaytraced::create(0.2f, sphere_material));
                 }
                 else if (choose_mat < 0.95f)
                 {
@@ -90,17 +92,15 @@ void Game::initialize()
                     sphere_material->color = glm::vec4(rand1, 1.0f);
                     sphere_material->fuzz = AK::random_float_fast(0.0f, 0.5f);
                     sphere_material->metal = true;
-                    auto const sphere = Entity::create("Sphere");
-                    sphere->transform->set_position(center);
-                    sphere->add_component<SphereRaytraced>(SphereRaytraced::create(center, 0.2f, sphere_material));
+
+                    sphere->add_component<SphereRaytraced>(SphereRaytraced::create(0.2f, sphere_material));
                 }
                 else
                 {
                     sphere_material->dielectric = true;
                     sphere_material->refraction_index = 1.5f;
-                    auto const sphere = Entity::create("Sphere");
-                    sphere->transform->set_position(center);
-                    sphere->add_component<SphereRaytraced>(SphereRaytraced::create(center, 0.2f, sphere_material));
+
+                    sphere->add_component<SphereRaytraced>(SphereRaytraced::create(0.2f, sphere_material));
                 }
             }
         }
@@ -120,13 +120,16 @@ void Game::initialize()
     material3->fuzz = 0.0f;
 
     auto const sphere2 = Entity::create("Sphere2");
-    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({4.0f, 1.0f, 0.0f}, 1.0f, material3));
+    sphere2->transform->set_position({4.0f, 1.0f, 0.0f});
+    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create(1.0f, material3));
 
     auto const sphere1 = Entity::create("Sphere1");
-    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-4.0f, 1.0f, 0.0f}, 1.0f, material1));
+    sphere1->transform->set_position({-4.0f, 1.0f, 0.0f});
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create(1.0f, material1));
 
     auto const sphere3 = Entity::create("Sphere3");
-    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, 1.0f, 0.0f}, 1.0f, material2));
+    sphere3->transform->set_position({0.0f, 1.0f, 0.0f});
+    sphere3->add_component<SphereRaytraced>(SphereRaytraced::create(1.0f, material2));
 
     //auto const material_center = Material::create(standard_shader);
     //material_center->color = {0.1f, 0.2f, 0.5f, 1.0f};
