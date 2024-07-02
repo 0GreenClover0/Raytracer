@@ -25,3 +25,9 @@ bool Interval::surrounds(float const x) const
 {
     return min < x && x < max;
 }
+
+Interval Interval::expand(float const delta) const
+{
+    float const padding = delta / 2.0f;
+    return Interval(min - padding, max + padding);
+}
