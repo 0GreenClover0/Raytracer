@@ -44,11 +44,16 @@ std::shared_ptr<Raytracer> Raytracer::get_instance()
 void Raytracer::register_hittable(std::shared_ptr<Hittable> const& hittable)
 {
     m_hittables.emplace_back(hittable);
+
+    // Resize bounding box
+    m_bbox = AABB(m_bbox, hittable->bounding_box());
 }
 
 void Raytracer::unregister_hittable(std::shared_ptr<Hittable> const& hittable)
 {
     AK::swap_and_erase(m_hittables, hittable);
+
+    // FIXME: Make bounding box smaller?
 }
 
 void Raytracer::render(std::shared_ptr<Camera> const& camera)

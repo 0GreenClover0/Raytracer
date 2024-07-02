@@ -1,6 +1,7 @@
 #include "Material.h"
 
 #include "AK/AK.h"
+#include "AK/Math.h"
 #include "Renderer.h"
 #include "Renderer/Hittable.h"
 #include "Renderer/Ray.h"
