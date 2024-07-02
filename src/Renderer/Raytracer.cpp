@@ -137,13 +137,15 @@ void Raytracer::initialize(std::shared_ptr<Camera> const& camera)
     m_image_height = (m_image_height < 1) ? 1 : m_image_height;
 
     // Determine viewport dimensions.
-    float constexpr focal_length = 1.0f;
-    float constexpr viewport_height = 2.0f;
+    float const focal_length = 3.47f;
+    float const theta = m_camera->fov;
+    float const h = glm::tan(theta / 2.0f);
+    float const viewport_height = 2.0f * h * focal_length;
     float const viewport_width = viewport_height * (static_cast<float>(m_image_width) / static_cast<float>(m_image_height));
 
     // Calculate the vectors across the horizontal and down the vertical viewport edges.
-    glm::vec3 const viewport_u = {viewport_width, 0.0f, 0.0f};
-    glm::vec3 constexpr viewport_v = {0.0f, -viewport_height, 0.0f};
+    glm::vec3 const viewport_u = viewport_width * -m_camera->get_right();
+    glm::vec3 const viewport_v = viewport_height * -m_camera->get_up();
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     m_pixel_delta_u = viewport_u / static_cast<float>(m_image_width);
@@ -151,7 +153,7 @@ void Raytracer::initialize(std::shared_ptr<Camera> const& camera)
 
     // Calculate the location of the upper left pixel.
     glm::vec3 const viewport_upper_left =
-        m_camera->get_position() - glm::vec3(0.0f, 0.0f, focal_length) - viewport_u / 2.0f - viewport_v / 2.0f;
+        m_camera->get_position() - focal_length * m_camera->get_front() - viewport_u / 2.0f - viewport_v / 2.0f;
     m_pixel00_location = viewport_upper_left + 0.5f * (m_pixel_delta_u + m_pixel_delta_v);
 }
 
