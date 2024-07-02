@@ -43,8 +43,11 @@ void Game::initialize()
 
     m_camera_comp = m_camera->add_component(Camera::create());
     m_camera_comp->set_can_tick(true);
-    m_camera_comp->set_fov(glm::radians(22.0f));
+    m_camera_comp->set_fov(glm::radians(20.0f));
     m_camera_comp->update();
+
+    m_camera->transform->set_position({-2.0f, 2.0f, 1.0f});
+    m_camera->transform->set_euler_angles({60.0f, 180.0f, 47.5f});
 
     auto const raytracer = Raytracer::create();
 
@@ -90,6 +93,20 @@ void Game::initialize()
 
     auto const sphere4 = Entity::create("Sphere4");
     sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({1.0f, 0.0f, -1.0f}, 0.5f, material_right));
+
+    //float const r = glm::cos(glm::pi<float>() / 4.0f);
+
+    //auto const material_l = Material::create(standard_shader);
+    //material_l->color = {0.0f, 0.0f, 1.0f, 1.0f};
+
+    //auto const material_r = Material::create(standard_shader);
+    //material_r->color = {1.0f, 0.0f, 0.0f, 1.0f};
+
+    //auto const sphere1 = Entity::create("Sphere1");
+    //sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-r, 0.0f, -1.0f}, r, material_l));
+
+    //auto const sphere2 = Entity::create("Sphere2");
+    //sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({r, 0.0f, -1.0f}, r, material_r));
 
     raytracer->render(m_camera_comp);
 }
