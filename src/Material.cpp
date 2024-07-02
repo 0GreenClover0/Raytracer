@@ -51,9 +51,23 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         float const ri = hit_record.front_face ? (1.0f / refraction_index) : refraction_index;
 
         glm::vec3 const unit_direction = glm::normalize(ray_in.direction());
-        glm::vec3 const refracted = glm::refract(unit_direction, hit_record.normal, ri);
 
-        scattered = Ray(hit_record.point, refracted);
+        float const cos_theta = glm::min(glm::dot(-unit_direction, hit_record.normal), 1.0f);
+        float const sin_theta = glm::sqrt(1.0f - cos_theta * cos_theta);
+
+        bool const cannot_refract = ri * sin_theta > 1.0f;
+        glm::vec3 direction;
+
+        if (cannot_refract)
+        {
+            direction = glm::reflect(unit_direction, hit_record.normal);
+        }
+        else
+        {
+            direction = glm::refract(unit_direction, hit_record.normal, ri);
+        }
+
+        scattered = Ray(hit_record.point, direction);
         return true;
     }
     else

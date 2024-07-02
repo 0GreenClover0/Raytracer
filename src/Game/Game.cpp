@@ -65,7 +65,7 @@ void Game::initialize()
     material_left->color = {0.8f, 0.8f, 0.8f, 1.0f};
     material_left->dielectric = true;
     material_left->fuzz = 0.3f;
-    material_left->refraction_index = 1.5f;
+    material_left->refraction_index = 1.0f / 1.33f;
 
     auto const material_right = Material::create(standard_shader);
     material_right->color = {0.8f, 0.6f, 0.2f, 1.0f};
