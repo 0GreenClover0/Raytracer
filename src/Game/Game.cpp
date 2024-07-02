@@ -64,13 +64,17 @@ void Game::initialize()
     auto const material_left = Material::create(standard_shader);
     material_left->color = {0.8f, 0.8f, 0.8f, 1.0f};
     material_left->dielectric = true;
-    material_left->fuzz = 0.3f;
-    material_left->refraction_index = 1.0f / 1.33f;
+    material_left->refraction_index = 1.5f;
 
     auto const material_right = Material::create(standard_shader);
     material_right->color = {0.8f, 0.6f, 0.2f, 1.0f};
     material_right->metal = true;
     material_right->fuzz = 0.8f;
+
+    auto const material_bubble = Material::create(standard_shader);
+    material_bubble->color = {0.8f, 0.8f, 0.8f, 1.0f};
+    material_bubble->dielectric = true;
+    material_bubble->refraction_index = 1.0f / 1.5f;
 
     auto const sphere2 = Entity::create("Sphere2");
     sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -100.5f, -1.0f}, 100.0f, material_ground));
@@ -80,6 +84,9 @@ void Game::initialize()
 
     auto const sphere3 = Entity::create("Sphere3");
     sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-1.0f, 0.0f, -1.0f}, 0.5f, material_left));
+
+    auto const sphere5 = Entity::create("Sphere5");
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-1.0f, 0.0f, -1.0f}, 0.4f, material_bubble));
 
     auto const sphere4 = Entity::create("Sphere4");
     sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({1.0f, 0.0f, -1.0f}, 0.5f, material_right));

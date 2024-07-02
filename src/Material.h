@@ -76,6 +76,8 @@ public:
     std::vector<std::shared_ptr<Drawable>> drawables = {};
 
 private:
+    static float reflectance(float cosine, float refraction_index);
+
     // TODO: Negative render order is currently not supported
     i32 m_render_order = 0;
 };

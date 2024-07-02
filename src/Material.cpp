@@ -1,5 +1,6 @@
 #include "Material.h"
 
+#include "AK/AK.h"
 #include "Renderer.h"
 #include "Renderer/Hittable.h"
 #include "Renderer/Ray.h"
@@ -58,7 +59,7 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         bool const cannot_refract = ri * sin_theta > 1.0f;
         glm::vec3 direction;
 
-        if (cannot_refract)
+        if (cannot_refract || reflectance(cos_theta, ri) > AK::random_float_fast())
         {
             direction = glm::reflect(unit_direction, hit_record.normal);
         }
@@ -83,4 +84,12 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         attenuation = color;
         return true;
     }
+}
+
+float Material::reflectance(float cosine, float refraction_index)
+{
+    // Use Schlick's approximation for reflectance.
+    float r0 = (1.0f - refraction_index) / (1.0f + refraction_index);
+    r0 = r0 * r0;
+    return r0 + (1.0f - r0) * glm::pow((1.0f - cosine), 5.0f);
 }
