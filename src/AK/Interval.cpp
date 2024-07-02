@@ -11,6 +11,12 @@ Interval::Interval(float const min, float const max) : min(min), max(max)
 {
 }
 
+Interval::Interval(Interval const& a, Interval const& b)
+{
+    min = a.min <= b.min ? a.min : b.min;
+    max = a.max >= b.max ? a.max : b.max;
+}
+
 float Interval::size() const
 {
     return max - min;
