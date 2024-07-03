@@ -111,7 +111,15 @@ inline i32 random_int(i32 const min, i32 const max)
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(min, max);
+
     return dis(gen);
+}
+
+inline i32 random_int_fast(i32 const min, i32 const max)
+{
+    std::uniform_int_distribution<i32> random_ints(min, max);
+
+    return random_ints(random_engine);
 }
 
 inline float random_float(float const min, float const max)
