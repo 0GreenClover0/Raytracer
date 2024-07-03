@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "Renderer/Hittable.h"
 #include "Renderer/Ray.h"
+#include "Renderer/TextureCPU.h"
 
 std::shared_ptr<Material> Material::create(std::shared_ptr<Shader> const& shader, i32 const render_order, bool const is_gpu_instanced,
                                            bool const is_billboard, bool const is_transparent)
@@ -21,6 +22,15 @@ std::shared_ptr<Material> Material::create(std::shared_ptr<Shader> const& shader
     {
         material->needs_forward_rendering = true;
     }
+
+    return material;
+}
+
+std::shared_ptr<Material> Material::create(std::shared_ptr<Shader> const& shader, glm::vec3 const& color)
+{
+    auto material = std::make_shared<Material>(AK::Badge<Material> {}, shader, 0, false, false, false);
+
+    material->texture = std::make_shared<SolidColor>(color);
 
     return material;
 }
@@ -82,7 +92,16 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         }
 
         scattered = Ray(hit_record.point, scatter_direction);
-        attenuation = color;
+
+        if (texture == nullptr)
+        {
+            attenuation = color;
+        }
+        else
+        {
+            attenuation = texture->value(hit_record.u, hit_record.v, hit_record.point);
+        }
+
         return true;
     }
 }

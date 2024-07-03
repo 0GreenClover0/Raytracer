@@ -11,6 +11,7 @@
 #include "Model.h"
 #include "Renderer/Raytracer.h"
 #include "Renderer/SphereRaytraced.h"
+#include "Renderer/TextureCPU.h"
 #include "ResourceManager.h"
 #include "ScreenText.h"
 #include "SoundListener.h"
@@ -57,7 +58,7 @@ void Game::initialize()
     raytracer->set_max_depth(50);
 
     auto const material_ground = Material::create(standard_shader);
-    material_ground->color = {0.5f, 0.5f, 0.5f, 1.0f};
+    material_ground->texture = std::make_shared<CheckerTexture>(0.32f, glm::vec3(0.2f, 0.3f, 0.1f), glm::vec3(0.9f, 0.9f, 0.9f));
 
     auto const ground = Entity::create("Ground");
     ground->transform->set_position({0.0f, -1000.0f, -0.0f});
