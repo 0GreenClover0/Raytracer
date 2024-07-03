@@ -66,10 +66,6 @@ void Raytracer::render(std::shared_ptr<Camera> const& camera)
         std::filesystem::create_directory(directory);
     }
 
-    std::ofstream output(output_directory + output_file);
-
-    output << "P3\n" << m_image_width << ' ' << m_image_height << "\n255\n";
-
     m_camera_position_this_frame = m_camera->get_position();
 
     std::vector<std::string> scanlines = {};
@@ -96,6 +92,10 @@ void Raytracer::render(std::shared_ptr<Camera> const& camera)
                 std::to_string(color_byte.r) + ' ' + std::to_string(color_byte.g) + ' ' + std::to_string(color_byte.b) + '\n';
         }
     });
+
+    std::ofstream output(output_directory + output_file);
+
+    output << "P3\n" << m_image_width << ' ' << m_image_height << "\n255\n";
 
     for (auto const& line : scanlines)
     {
