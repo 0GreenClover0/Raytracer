@@ -66,7 +66,24 @@ bool SphereRaytraced::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_r
     hit_record.point = ray.at(root);
     glm::vec3 const outward_normal = (hit_record.point - m_center) / m_radius;
     hit_record.material = material;
+    get_sphere_uv(outward_normal, hit_record.u, hit_record.v);
     hit_record.set_face_normal(ray, outward_normal);
 
     return true;
+}
+
+void SphereRaytraced::get_sphere_uv(glm::vec3 const& point, float& u, float& v)
+{
+    // p: a given point on the sphere of radius one, centered at the origin.
+    // u: returned value [0,1] of angle around the Y axis from X=-1.
+    // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+    //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+    //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+    //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+
+    float const theta = std::acos(-point.y);
+    float const phi = std::atan2(-point.z, point.x) + glm::pi<float>();
+
+    u = phi / (2.0f * glm::pi<float>());
+    v = theta / glm::pi<float>();
 }

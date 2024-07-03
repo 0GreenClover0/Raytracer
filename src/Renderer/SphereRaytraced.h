@@ -15,6 +15,8 @@ public:
 
     virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const override;
 
+    static void get_sphere_uv(glm::vec3 const& point, float& u, float& v);
+
 private:
     glm::vec3 m_center = {};
     float m_radius = 0.0f;
