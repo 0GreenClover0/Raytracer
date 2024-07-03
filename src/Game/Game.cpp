@@ -20,35 +20,64 @@ Game::Game(std::shared_ptr<Window> const& window) : window(window)
 {
 }
 
-void Game::initialize()
+static void checkered_spheres()
 {
     auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
-    auto const plain_shader = ResourceManager::get_instance().load_shader("./res/shaders/simple.hlsl", "./res/shaders/simple.hlsl");
-    auto const light_source_shader =
-        ResourceManager::get_instance().load_shader("./res/shaders/light_source.hlsl", "./res/shaders/light_source.hlsl");
-    auto const halo_shader = ResourceManager::get_instance().load_shader("./res/shaders/halo.hlsl", "./res/shaders/halo.hlsl");
-
     auto const standard_material = Material::create(standard_shader);
-    auto const plain_material = Material::create(plain_shader);
-    auto const light_source_material = Material::create(light_source_shader);
-    auto const halo_material = Material::create(halo_shader);
 
-    auto const ui_shader = ResourceManager::get_instance().load_shader("./res/shaders/ui.hlsl", "./res/shaders/ui.hlsl");
-    auto const ui_material = Material::create(ui_shader, 1);
-    ui_material->casts_shadows = false;
+    auto const camera = Entity::create("Camera");
+    camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->add_component<SoundListener>(SoundListener::create());
 
-    m_camera = Entity::create("Camera");
-    m_camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
-    m_camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
-    m_camera->add_component<SoundListener>(SoundListener::create());
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(20.0f));
+    camera_comp->update();
 
-    m_camera_comp = m_camera->add_component(Camera::create());
-    m_camera_comp->set_can_tick(true);
-    m_camera_comp->set_fov(glm::radians(20.0f));
-    m_camera_comp->update();
+    camera->transform->set_position({13.0f, 2.0f, 3.0f});
+    camera->transform->set_euler_angles({0.0f, 260.0f, 5.0f});
 
-    m_camera->transform->set_position({13.0f, 2.0f, 3.0f});
-    m_camera->transform->set_euler_angles({0.0f, 270.0f, 0.0f});
+    auto const raytracer = Raytracer::create();
+
+    raytracer->set_image_width(400);
+    raytracer->set_aspect_ratio(16.0f / 9.0f);
+    raytracer->set_samples_per_pixel(100);
+    raytracer->set_max_depth(50);
+
+    auto const material = Material::create(standard_shader);
+    material->texture = std::make_shared<CheckerTexture>(0.32f, glm::vec3(0.2f, 0.3f, 0.1f), glm::vec3(0.9f, 0.9f, 0.9f));
+
+    auto const sphere1 = Entity::create("Sphere1");
+    sphere1->transform->set_position({0.0f, -10.0f, 0.0f});
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create(10.0f, material));
+
+    auto const sphere2 = Entity::create("Sphere2");
+    sphere2->transform->set_position({0.0f, 10.0f, 0.0f});
+    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create(10.0f, material));
+
+    raytracer->initialize(camera_comp);
+
+    raytracer->render(camera_comp);
+}
+
+static void bouncing_spheres_scene()
+{
+    auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+    auto const standard_material = Material::create(standard_shader);
+
+    auto const camera = Entity::create("Camera");
+    camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->add_component<SoundListener>(SoundListener::create());
+
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(20.0f));
+    camera_comp->update();
+
+    camera->transform->set_position({13.0f, 2.0f, 3.0f});
+    camera->transform->set_euler_angles({0.0f, 270.0f, 0.0f});
 
     auto const raytracer = Raytracer::create();
 
@@ -130,54 +159,61 @@ void Game::initialize()
     sphere3->transform->set_position({0.0f, 1.0f, 0.0f});
     sphere3->add_component<SphereRaytraced>(SphereRaytraced::create(1.0f, material2));
 
-    //auto const material_center = Material::create(standard_shader);
-    //material_center->color = {0.1f, 0.2f, 0.5f, 1.0f};
+    raytracer->initialize(camera_comp);
 
-    //auto const material_left = Material::create(standard_shader);
-    //material_left->color = {0.8f, 0.8f, 0.8f, 1.0f};
-    //material_left->dielectric = true;
-    //material_left->refraction_index = 1.5f;
+    raytracer->render(camera_comp);
+}
 
-    //auto const material_right = Material::create(standard_shader);
-    //material_right->color = {0.8f, 0.6f, 0.2f, 1.0f};
-    //material_right->metal = true;
-    //material_right->fuzz = 0.8f;
+i32 scene_index = 2;
 
-    //auto const material_bubble = Material::create(standard_shader);
-    //material_bubble->color = {0.8f, 0.8f, 0.8f, 1.0f};
-    //material_bubble->dielectric = true;
-    //material_bubble->refraction_index = 1.0f / 1.5f;
+void Game::initialize()
+{
+    switch (scene_index)
+    {
+    case 0:
+    {
+        auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+        auto const plain_shader = ResourceManager::get_instance().load_shader("./res/shaders/simple.hlsl", "./res/shaders/simple.hlsl");
+        auto const light_source_shader =
+            ResourceManager::get_instance().load_shader("./res/shaders/light_source.hlsl", "./res/shaders/light_source.hlsl");
+        auto const halo_shader = ResourceManager::get_instance().load_shader("./res/shaders/halo.hlsl", "./res/shaders/halo.hlsl");
 
-    //auto const sphere2 = Entity::create("Sphere2");
-    //sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, -100.5f, -1.0f}, 100.0f, material_ground));
+        auto const standard_material = Material::create(standard_shader);
+        auto const plain_material = Material::create(plain_shader);
+        auto const light_source_material = Material::create(light_source_shader);
+        auto const halo_material = Material::create(halo_shader);
 
-    //auto const sphere1 = Entity::create("Sphere1");
-    //sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({0.0f, 0.0f, -1.2f}, 0.5f, material_center));
+        auto const ui_shader = ResourceManager::get_instance().load_shader("./res/shaders/ui.hlsl", "./res/shaders/ui.hlsl");
+        auto const ui_material = Material::create(ui_shader, 1);
+        ui_material->casts_shadows = false;
 
-    //auto const sphere3 = Entity::create("Sphere3");
-    //sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-1.0f, 0.0f, -1.0f}, 0.5f, material_left));
+        m_camera = Entity::create("Camera");
+        m_camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
+        m_camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
+        m_camera->add_component<SoundListener>(SoundListener::create());
 
-    //auto const sphere5 = Entity::create("Sphere5");
-    //sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-1.0f, 0.0f, -1.0f}, 0.4f, material_bubble));
+        m_camera_comp = m_camera->add_component(Camera::create());
+        m_camera_comp->set_can_tick(true);
+        m_camera_comp->set_fov(glm::radians(20.0f));
+        m_camera_comp->update();
 
-    //auto const sphere4 = Entity::create("Sphere4");
-    //sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({1.0f, 0.0f, -1.0f}, 0.5f, material_right));
-
-    //float const r = glm::cos(glm::pi<float>() / 4.0f);
-
-    //auto const material_l = Material::create(standard_shader);
-    //material_l->color = {0.0f, 0.0f, 1.0f, 1.0f};
-
-    //auto const material_r = Material::create(standard_shader);
-    //material_r->color = {1.0f, 0.0f, 0.0f, 1.0f};
-
-    //auto const sphere1 = Entity::create("Sphere1");
-    //sphere1->add_component<SphereRaytraced>(SphereRaytraced::create({-r, 0.0f, -1.0f}, r, material_l));
-
-    //auto const sphere2 = Entity::create("Sphere2");
-    //sphere2->add_component<SphereRaytraced>(SphereRaytraced::create({r, 0.0f, -1.0f}, r, material_r));
-
-    raytracer->initialize(m_camera_comp);
-
-    raytracer->render(m_camera_comp);
+        m_camera->transform->set_position({13.0f, 2.0f, 3.0f});
+        m_camera->transform->set_euler_angles({0.0f, 270.0f, 0.0f});
+        break;
+    }
+    case 1:
+    {
+        bouncing_spheres_scene();
+        break;
+    }
+    case 2:
+    {
+        checkered_spheres();
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
 }
