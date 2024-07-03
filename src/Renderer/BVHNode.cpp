@@ -6,7 +6,15 @@
 
 BVHNode::BVHNode(std::vector<std::shared_ptr<Hittable>>& hittables, size_t const start, size_t const end)
 {
-    i32 const axis = AK::random_int_fast(0, 2);
+    // Build the bounding box of the span of source hittables.
+    m_bbox = AABB::empty;
+
+    for (size_t index = start; index < end; ++index)
+    {
+        m_bbox = AABB(m_bbox, hittables[index]->bounding_box());
+    }
+
+    i32 const axis = m_bbox.longest_axis();
 
     auto const comparator = (axis == 0) ? box_x_compare : (axis == 1) ? box_y_compare : box_z_compare;
 
@@ -15,15 +23,11 @@ BVHNode::BVHNode(std::vector<std::shared_ptr<Hittable>>& hittables, size_t const
     if (hittables_span == 1)
     {
         m_hittable_left = m_hittable_right = hittables[start];
-
-        m_bbox = AABB(m_hittable_left->bounding_box(), m_hittable_right->bounding_box());
     }
     else if (hittables_span == 2)
     {
         m_hittable_left = hittables[start];
         m_hittable_right = hittables[start + 1];
-
-        m_bbox = AABB(m_hittable_left->bounding_box(), m_hittable_right->bounding_box());
     }
     else
     {
@@ -33,8 +37,6 @@ BVHNode::BVHNode(std::vector<std::shared_ptr<Hittable>>& hittables, size_t const
 
         m_left = std::make_shared<BVHNode>(hittables, start, mid);
         m_right = std::make_shared<BVHNode>(hittables, mid, end);
-
-        m_bbox = AABB(m_left->bounding_box(), m_right->bounding_box());
     }
 }
 
