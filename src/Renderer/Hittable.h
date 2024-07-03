@@ -11,6 +11,8 @@ struct HitRecord
     glm::vec3 normal;
     std::shared_ptr<Material> material;
     float t;
+    float u;
+    float v;
     bool front_face;
 
     void set_face_normal(Ray const& ray, glm::vec3 const& outward_normal)

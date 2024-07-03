@@ -12,6 +12,7 @@
 #include "Shader.h"
 
 class Drawable;
+class TextureCPU;
 class Ray;
 struct HitRecord;
 
@@ -21,6 +22,8 @@ public:
     static std::shared_ptr<Material> create(std::shared_ptr<Shader> const& shader, i32 const render_order = 0,
                                             bool const is_gpu_instanced = false, bool const is_billboard = false,
                                             bool const is_transparent = false);
+
+    static std::shared_ptr<Material> create(std::shared_ptr<Shader> const& shader, glm::vec3 const& color);
 
     explicit Material(AK::Badge<Material>, std::shared_ptr<Shader> const& shader, i32 const render_order, bool const is_gpu_instanced,
                       bool const is_billboard, bool is_transparent);
@@ -38,6 +41,8 @@ public:
 
     // TODO: Expose properties directly from the shader, somehow.
     glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    std::shared_ptr<TextureCPU> texture = {};
+
     float specular = 1.0f;
     float shininess = 128.0f;
 
