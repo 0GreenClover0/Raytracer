@@ -1,5 +1,8 @@
 #include "AABB.h"
 
+AABB const AABB::empty = AABB(Interval::empty, Interval::empty, Interval::empty);
+AABB const AABB::whole = AABB(Interval::whole, Interval::whole, Interval::whole);
+
 AABB::AABB(Interval const& x, Interval const& y, Interval const& z) : x(x), y(y), z(z)
 {
 }
@@ -78,4 +81,15 @@ bool AABB::hit(Ray const& ray, Interval ray_t) const
     }
 
     return true;
+}
+
+// Returns the index of the longest axis of the bounding box.
+i32 AABB::longest_axis() const
+{
+    if (x.size() > y.size())
+    {
+        return x.size() > z.size() ? 0 : 2;
+    }
+
+    return y.size() > z.size() ? 1 : 2;
 }

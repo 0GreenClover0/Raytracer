@@ -21,4 +21,9 @@ struct AABB
     [[nodiscard]] Interval const& axis_interval(i32 const n) const;
 
     [[nodiscard]] bool hit(Ray const& ray, Interval ray_t) const;
+
+    [[nodiscard]] i32 longest_axis() const;
+
+    static const AABB empty;
+    static const AABB whole;
 };
