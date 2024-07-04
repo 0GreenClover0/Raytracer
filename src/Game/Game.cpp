@@ -45,7 +45,7 @@ static void perlin_spheres()
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
 
-    auto const perlin_texture = std::make_shared<NoiseTexture>();
+    auto const perlin_texture = std::make_shared<NoiseTexture>(4.0f);
 
     auto const material = Material::create(standard_shader);
     material->texture = perlin_texture;
