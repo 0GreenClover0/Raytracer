@@ -20,6 +20,49 @@ Game::Game(std::shared_ptr<Window> const& window) : window(window)
 {
 }
 
+static void perlin_spheres()
+{
+    auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+    auto const standard_material = Material::create(standard_shader);
+
+    auto const camera = Entity::create("Camera");
+    camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->add_component<SoundListener>(SoundListener::create());
+
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(20.0f));
+    camera_comp->update();
+
+    camera->transform->set_position({13.0f, 2.0f, 3.0f});
+    camera->transform->set_euler_angles({0.0f, 260.0f, 5.0f});
+
+    auto const raytracer = Raytracer::create();
+
+    raytracer->set_image_width(400);
+    raytracer->set_aspect_ratio(16.0f / 9.0f);
+    raytracer->set_samples_per_pixel(100);
+    raytracer->set_max_depth(50);
+
+    auto const perlin_texture = std::make_shared<NoiseTexture>();
+
+    auto const material = Material::create(standard_shader);
+    material->texture = perlin_texture;
+
+    auto const sphere1 = Entity::create("Sphere1");
+    sphere1->transform->set_position({0.0f, -1000.0f, 0.0f});
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create(1000.0f, material));
+
+    auto const sphere2 = Entity::create("Sphere2");
+    sphere2->transform->set_position({0.0f, 2.0f, 0.0f});
+    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create(2.0f, material));
+
+    raytracer->initialize(camera_comp);
+
+    raytracer->render(camera_comp);
+}
+
 static void earth()
 {
     auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
@@ -202,7 +245,7 @@ static void bouncing_spheres_scene()
     raytracer->render(camera_comp);
 }
 
-i32 scene_index = 3;
+i32 scene_index = 4;
 
 void Game::initialize()
 {
@@ -252,6 +295,11 @@ void Game::initialize()
     case 3:
     {
         earth();
+        break;
+    }
+    case 4:
+    {
+        perlin_spheres();
         break;
     }
     default:
