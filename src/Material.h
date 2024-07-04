@@ -36,6 +36,7 @@ public:
     [[nodiscard]] i32 get_render_order() const;
 
     bool scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3& attenuation, Ray& scattered) const;
+    glm::vec3 emit(float const u, float const v, glm::vec3 const& point) const;
 
     std::shared_ptr<Shader> shader;
 
@@ -48,6 +49,7 @@ public:
 
     bool metal = false;
     bool dielectric = false;
+    bool emmisive = false;
 
     // Should be in 0.0 - 1.0 range
     float fuzz = 0.0f;
