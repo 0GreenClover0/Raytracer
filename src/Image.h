@@ -1,19 +1,19 @@
 #pragma once
 
+#include "AK/Badge.h"
 #include "AK/Types.h"
 
+#include <memory>
 #include <string>
 
 class Image
 {
 public:
-    Image() = default;
+    static std::shared_ptr<Image> create(std::string const& path);
 
-    explicit Image(std::string const& path);
+    explicit Image(AK::Badge<Image>, std::string const& path);
 
     ~Image();
-
-    bool load(std::string const& path);
 
     [[nodiscard]] i32 width() const;
     [[nodiscard]] i32 height() const;
@@ -24,6 +24,7 @@ private:
     static i32 clamp(i32 const x, i32 const low, i32 const high);
     static u8 float_to_byte(float const value);
 
+    bool load(std::string const& path);
     void convert_to_bytes();
 
     inline static i32 bytes_per_pixel = 3;

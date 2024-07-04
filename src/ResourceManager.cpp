@@ -15,6 +15,21 @@ ResourceManager& ResourceManager::get_instance()
     return instance;
 }
 
+std::shared_ptr<Image> ResourceManager::load_image(std::string const& path)
+{
+    std::string const& key = path;
+    std::shared_ptr<Image> resource_ptr = get_from_vector<Image>(key);
+
+    if (resource_ptr != nullptr)
+        return resource_ptr;
+
+    resource_ptr = Image::create(path);
+    m_images.emplace_back(resource_ptr);
+    names_to_images.insert(std::pair<std::string, u16>(key, m_images.size() - 1));
+
+    return resource_ptr;
+}
+
 std::shared_ptr<Texture> ResourceManager::load_texture(std::string const& path, TextureType const type, TextureSettings const& settings)
 {
     std::string const& key = path; // No need to even call generate_key()
