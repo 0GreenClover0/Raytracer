@@ -32,6 +32,7 @@
 #include "ParticleSystem.h"
 #include "PointLight.h"
 #include "Renderer/Hittable.h"
+#include "Renderer/QuadRaytraced.h"
 #include "Renderer/SphereRaytraced.h"
 #include "ScreenText.h"
 #include "ShaderFactory.h"
@@ -166,6 +167,12 @@ void SceneSerializer::auto_serialize_component(YAML::Emitter& out, std::shared_p
                 out << YAML::Key << "ComponentName" << YAML::Value << "SphereRaytracedComponent";
                 out << YAML::Key << "guid" << YAML::Value << sphereraytraced->guid;
                 out << YAML::Key << "custom_name" << YAML::Value << sphereraytraced->custom_name;
+            }
+            else if (auto const quadraytraced = std::dynamic_pointer_cast<class QuadRaytraced>(component); quadraytraced != nullptr)
+            {
+                out << YAML::Key << "ComponentName" << YAML::Value << "QuadRaytracedComponent";
+                out << YAML::Key << "guid" << YAML::Value << quadraytraced->guid;
+                out << YAML::Key << "custom_name" << YAML::Value << quadraytraced->custom_name;
             }
             else
             {

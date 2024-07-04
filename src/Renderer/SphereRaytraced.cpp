@@ -26,6 +26,8 @@ void SphereRaytraced::initialize()
 
 void SphereRaytraced::update()
 {
+    // FIXME: This is actually not called because can_tick is set to false. When we'll set it to true eventually,
+    // AABB will need to be updated as well.
     m_center = entity->transform->get_position();
 }
 
