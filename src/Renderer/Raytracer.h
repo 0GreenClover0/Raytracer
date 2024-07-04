@@ -35,6 +35,7 @@ public:
     void set_image_width(i32 const image_width);
     void set_samples_per_pixel(i32 const samples_per_pixel);
     void set_max_depth(i32 const max_depth);
+    void set_background_color(glm::vec3 const& background_color);
 
 private:
     [[nodiscard]] Ray get_ray(i32 const i, i32 const k) const;
@@ -58,6 +59,8 @@ private:
     i32 m_max_depth = 10;
 
     float m_aspect_ratio = 1.0f;
+
+    glm::vec3 m_background_color = {};
 
     i32 m_image_width = 100;
     i32 m_image_height = 0;

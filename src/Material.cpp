@@ -82,6 +82,10 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         scattered = Ray(hit_record.point, direction);
         return true;
     }
+    else if (emmisive)
+    {
+        return false;
+    }
     else
     {
         glm::vec3 scatter_direction = hit_record.normal + AK::Math::random_unit_vector();
@@ -104,6 +108,14 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
 
         return true;
     }
+}
+
+glm::vec3 Material::emit(float const u, float const v, glm::vec3 const& point) const
+{
+    if (!emmisive)
+        return {};
+
+    return texture->value(u, v, point);
 }
 
 float Material::reflectance(float cosine, float refraction_index)

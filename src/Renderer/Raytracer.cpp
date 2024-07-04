@@ -131,6 +131,11 @@ void Raytracer::set_max_depth(i32 const max_depth)
     m_max_depth = max_depth;
 }
 
+void Raytracer::set_background_color(glm::vec3 const& background_color)
+{
+    m_background_color = background_color;
+}
+
 Ray Raytracer::get_ray(i32 const i, i32 const k) const
 {
     // Construct a camera ray originating from the origin and directed at randomly sampled
@@ -200,20 +205,22 @@ glm::vec3 Raytracer::ray_color(Ray const& ray, i32 const depth) const
 
     HitRecord hit_record = {};
 
-    if (hit(ray, Interval(0.001f, AK::INFINITY_F), hit_record))
+    // If the ray hits nothing, return the background color.
+    if (!hit(ray, Interval(0.001f, AK::INFINITY_F), hit_record))
     {
-        Ray scattered;
-        glm::vec3 attenuation;
-
-        if (hit_record.material->scatter(ray, hit_record, attenuation, scattered))
-            return attenuation * ray_color(scattered, depth - 1);
-
-        return {0.0f, 0.0f, 0.0f};
+        return m_background_color;
     }
 
-    glm::vec3 const unit_direction = glm::normalize(ray.direction());
-    float const a = 0.5f * (unit_direction.y + 1.0f);
-    return (1.0f - a) * glm::vec3(1.0f, 1.0f, 1.0f) + a * glm::vec3(0.5f, 0.7f, 1.0f);
+    Ray scattered;
+    glm::vec3 attenuation;
+    glm::vec3 const emitted_color = hit_record.material->emit(hit_record.u, hit_record.v, hit_record.point);
+
+    if (!hit_record.material->scatter(ray, hit_record, attenuation, scattered))
+        return emitted_color;
+
+    glm::vec3 const scattered_color = attenuation * ray_color(scattered, depth - 1);
+
+    return emitted_color + scattered_color;
 }
 
 glm::vec3 Raytracer::sample_square() const

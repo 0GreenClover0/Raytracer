@@ -21,6 +21,59 @@ Game::Game(std::shared_ptr<Window> const& window) : window(window)
 {
 }
 
+static void simple_light()
+{
+    auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+    auto const standard_material = Material::create(standard_shader);
+
+    auto const camera = Entity::create("Camera");
+    camera->add_component<SoundListener>(SoundListener::create());
+
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(20.0f));
+    camera_comp->update();
+
+    camera->transform->set_position({26.0f, 3.0f, 6.0f});
+    camera->transform->set_euler_angles({0.0f, 260.0f, 5.0f});
+
+    auto const raytracer = Raytracer::create();
+
+    raytracer->set_image_width(400);
+    raytracer->set_aspect_ratio(16.0f / 9.0f);
+    raytracer->set_samples_per_pixel(100);
+    raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.0f, 0.0f, 0.0f});
+
+    auto const perlin_texture = std::make_shared<NoiseTexture>(4.0f);
+    auto const material = Material::create(standard_shader);
+    material->texture = perlin_texture;
+
+    auto const sphere1 = Entity::create("Sphere1");
+    sphere1->transform->set_position({0.0f, -1000.0f, 0.0f});
+    sphere1->add_component<SphereRaytraced>(SphereRaytraced::create(1000.0f, material));
+
+    auto const sphere2 = Entity::create("Sphere2");
+    sphere2->transform->set_position({0.0f, 2.0f, 0.0f});
+    sphere2->add_component<SphereRaytraced>(SphereRaytraced::create(2.0f, material));
+
+    auto const light_material = Material::create(standard_shader);
+    light_material->emmisive = true;
+    glm::vec3 constexpr light_color = {4.0f, 4.0f, 4.0f};
+    light_material->texture = std::make_shared<SolidColor>(light_color);
+
+    auto light = Entity::create("Light");
+    light->add_component<QuadRaytraced>(QuadRaytraced::create({3.0f, 1.0f, -2.0f}, {2.0f, 0.0f, 0.0f}, {0.0f, 2.0f, 0.0f}, light_material));
+
+    light = Entity::create("Light");
+    light->transform->set_position({-10.0f, 6.0f, 5.0f});
+    light->add_component<SphereRaytraced>(SphereRaytraced::create(2.0f, light_material));
+
+    raytracer->initialize(camera_comp);
+
+    raytracer->render(camera_comp);
+}
+
 static void quads()
 {
     auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
@@ -45,6 +98,7 @@ static void quads()
     raytracer->set_aspect_ratio(1.0f);
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.7f, 0.8f, 1.0f});
 
     auto const quad1 = Material::create(standard_shader);
     auto const quad2 = Material::create(standard_shader);
@@ -101,6 +155,7 @@ static void perlin_spheres()
     raytracer->set_aspect_ratio(16.0f / 9.0f);
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.7f, 0.8f, 1.0f});
 
     auto const perlin_texture = std::make_shared<NoiseTexture>(4.0f);
 
@@ -144,6 +199,7 @@ static void earth()
     raytracer->set_aspect_ratio(16.0f / 9.0f);
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.7f, 0.8f, 1.0f});
 
     auto earth_image = ResourceManager::get_instance().load_image("./res/textures/images/flowers.jpg");
     auto const earth_surface = Material::create(standard_shader);
@@ -182,6 +238,7 @@ static void checkered_spheres()
     raytracer->set_aspect_ratio(16.0f / 9.0f);
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.7f, 0.8f, 1.0f});
 
     auto const material = Material::create(standard_shader);
     material->texture = std::make_shared<CheckerTexture>(0.32f, glm::vec3(0.2f, 0.3f, 0.1f), glm::vec3(0.9f, 0.9f, 0.9f));
@@ -223,6 +280,7 @@ static void bouncing_spheres_scene()
     raytracer->set_aspect_ratio(16.0f / 9.0f);
     raytracer->set_samples_per_pixel(100);
     raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.7f, 0.8f, 1.0f});
 
     auto const material_ground = Material::create(standard_shader);
     material_ground->texture = std::make_shared<CheckerTexture>(0.32f, glm::vec3(0.2f, 0.3f, 0.1f), glm::vec3(0.9f, 0.9f, 0.9f));
@@ -302,7 +360,7 @@ static void bouncing_spheres_scene()
     raytracer->render(camera_comp);
 }
 
-i32 scene_index = 5;
+i32 scene_index = 6;
 
 void Game::initialize()
 {
@@ -362,6 +420,11 @@ void Game::initialize()
     case 5:
     {
         quads();
+        break;
+    }
+    case 6:
+    {
+        simple_light();
         break;
     }
     default:
