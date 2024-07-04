@@ -68,3 +68,8 @@ glm::vec3 ImageTexture::value(float u, float v, glm::vec3 const& point) const
 
     return {color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]};
 }
+
+glm::vec3 NoiseTexture::value(float u, float v, glm::vec3 const& point) const
+{
+    return glm::vec3(1.0f, 1.0f, 1.0f) * m_noise.noise(point);
+}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PerlinNoise.h"
+
 #include <memory>
 #include <string>
 
@@ -53,4 +55,15 @@ public:
 
 private:
     std::shared_ptr<Image> m_image;
+};
+
+class NoiseTexture final : public TextureCPU
+{
+public:
+    NoiseTexture() = default;
+
+    [[nodiscard]] virtual glm::vec3 value(float u, float v, glm::vec3 const& point) const override;
+
+private:
+    PerlinNoise m_noise;
 };
