@@ -2,13 +2,15 @@
 
 #include "AK/AK.h"
 
+#include <glm/gtc/random.hpp>
+
 PerlinNoise::PerlinNoise()
 {
     m_rand_float = new float[point_count];
 
     for (i32 i = 0; i < point_count; ++i)
     {
-        m_rand_float[i] = AK::random_float_fast();
+        m_random_vectors[i] = glm::normalize(glm::linearRand(glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
     }
 
     m_permutation_x = perlin_generate_permutation();
@@ -30,19 +32,15 @@ float PerlinNoise::noise(glm::vec3 const& point) const
     float const y_floor = std::floor(point.y);
     float const z_floor = std::floor(point.z);
 
-    auto u = point.x - x_floor;
-    auto v = point.y - y_floor;
-    auto w = point.z - z_floor;
-
-    u = u * u * (3 - 2 * u);
-    v = v * v * (3 - 2 * v);
-    w = w * w * (3 - 2 * w);
+    auto const u = point.x - x_floor;
+    auto const v = point.y - y_floor;
+    auto const w = point.z - z_floor;
 
     auto const i = static_cast<i32>(x_floor);
     auto const k = static_cast<i32>(y_floor);
     auto const m = static_cast<i32>(z_floor);
 
-    float c[2][2][2];
+    glm::vec3 c[2][2][2];
 
     for (i32 di = 0; di < 2; ++di)
     {
@@ -51,16 +49,19 @@ float PerlinNoise::noise(glm::vec3 const& point) const
             for (i32 dm = 0; dm < 2; ++dm)
             {
                 c[di][dk][dm] =
-                    m_rand_float[m_permutation_x[(i + di) & 255] ^ m_permutation_y[(k + dk) & 255] ^ m_permutation_z[(m + dm) & 255]];
+                    m_random_vectors[m_permutation_x[(i + di) & 255] ^ m_permutation_y[(k + dk) & 255] ^ m_permutation_z[(m + dm) & 255]];
             }
         }
     }
 
-    return trilinear_interpolation(c, u, v, w);
+    return perlin_interpolation(c, u, v, w);
 }
 
-float PerlinNoise::trilinear_interpolation(float c[2][2][2], float u, float v, float w)
+float PerlinNoise::perlin_interpolation(glm::vec3 const c[2][2][2], float const u, float const v, float const w)
 {
+    float const uu = u * u * (3 - 2 * u);
+    float const vv = v * v * (3 - 2 * v);
+    float const ww = w * w * (3 - 2 * w);
     float accumulator = 0.0f;
 
     for (i32 i = 0; i < 2; ++i)
@@ -69,7 +70,9 @@ float PerlinNoise::trilinear_interpolation(float c[2][2][2], float u, float v, f
         {
             for (i32 m = 0; m < 2; ++m)
             {
-                accumulator += (i * u + (1 - i) * (1 - u)) * (k * v + (1 - k) * (1 - v)) * (m * w + (1 - m) * (1 - w)) * c[i][k][m];
+                auto const weight_v = glm::vec3(u - i, v - k, w - m);
+                accumulator += (i * uu + (1 - i) * (1 - uu)) * (k * vv + (1 - k) * (1 - vv)) * (m * ww + (1 - m) * (1 - ww))
+                             * glm::dot(c[i][k][m], weight_v);
             }
         }
     }
