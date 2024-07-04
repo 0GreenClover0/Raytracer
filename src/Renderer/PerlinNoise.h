@@ -12,6 +12,7 @@ public:
     ~PerlinNoise();
 
     [[nodiscard]] float noise(glm::vec3 const& point) const;
+    [[nodiscard]] float turbulence(glm::vec3 const& point, i32 const depth) const;
 
 private:
     static float perlin_interpolation(glm::vec3 const c[2][2][2], float const u, float const v, float const w);
