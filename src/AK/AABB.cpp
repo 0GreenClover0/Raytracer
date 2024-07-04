@@ -5,6 +5,7 @@ AABB const AABB::whole = AABB(Interval::whole, Interval::whole, Interval::whole)
 
 AABB::AABB(Interval const& x, Interval const& y, Interval const& z) : x(x), y(y), z(z)
 {
+    pad_to_minimums();
 }
 
 AABB::AABB(glm::vec3 const& a, glm::vec3 const& b)
@@ -12,6 +13,8 @@ AABB::AABB(glm::vec3 const& a, glm::vec3 const& b)
     x = (a.x <= b.x) ? Interval(a.x, b.x) : Interval(b.x, a.x);
     y = (a.y <= b.y) ? Interval(a.y, b.y) : Interval(b.y, a.y);
     z = (a.z <= b.z) ? Interval(a.z, b.z) : Interval(b.z, a.z);
+
+    pad_to_minimums();
 }
 
 AABB::AABB(AABB const& box0, AABB const& box1)
@@ -92,4 +95,19 @@ i32 AABB::longest_axis() const
     }
 
     return y.size() > z.size() ? 1 : 2;
+}
+
+void AABB::pad_to_minimums()
+{
+    // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
+    float constexpr delta = 0.0001f;
+
+    if (x.size() < delta)
+        x = x.expand(delta);
+
+    if (y.size() < delta)
+        y = y.expand(delta);
+
+    if (z.size() < delta)
+        z = z.expand(delta);
 }
