@@ -30,9 +30,13 @@ float PerlinNoise::noise(glm::vec3 const& point) const
     float const y_floor = std::floor(point.y);
     float const z_floor = std::floor(point.z);
 
-    auto const u = point.x - x_floor;
-    auto const v = point.y - y_floor;
-    auto const w = point.z - z_floor;
+    auto u = point.x - x_floor;
+    auto v = point.y - y_floor;
+    auto w = point.z - z_floor;
+
+    u = u * u * (3 - 2 * u);
+    v = v * v * (3 - 2 * v);
+    w = w * w * (3 - 2 * w);
 
     auto const i = static_cast<i32>(x_floor);
     auto const k = static_cast<i32>(y_floor);
