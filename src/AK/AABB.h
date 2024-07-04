@@ -26,4 +26,7 @@ struct AABB
 
     static const AABB empty;
     static const AABB whole;
+
+private:
+    void pad_to_minimums();
 };
