@@ -57,6 +57,22 @@ float PerlinNoise::noise(glm::vec3 const& point) const
     return perlin_interpolation(c, u, v, w);
 }
 
+float PerlinNoise::turbulence(glm::vec3 const& point, i32 const depth) const
+{
+    float accumulator = 0.0f;
+    glm::vec3 temp_point = point;
+    float weight = 1.0f;
+
+    for (i32 i = 0; i < depth; ++i)
+    {
+        accumulator += weight * noise(temp_point);
+        weight *= 0.5f;
+        temp_point *= 2.0f;
+    }
+
+    return std::fabs(accumulator);
+}
+
 float PerlinNoise::perlin_interpolation(glm::vec3 const c[2][2][2], float const u, float const v, float const w)
 {
     float const uu = u * u * (3 - 2 * u);
