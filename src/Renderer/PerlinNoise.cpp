@@ -26,11 +26,51 @@ PerlinNoise::~PerlinNoise()
 
 float PerlinNoise::noise(glm::vec3 const& point) const
 {
-    auto const i = static_cast<i32>(4.0f * point.x) & 255;
-    auto const k = static_cast<i32>(4.0f * point.y) & 255;
-    auto const m = static_cast<i32>(4.0f * point.z) & 255;
+    float const x_floor = std::floor(point.x);
+    float const y_floor = std::floor(point.y);
+    float const z_floor = std::floor(point.z);
 
-    return m_rand_float[m_permutation_x[i] ^ m_permutation_y[k] ^ m_permutation_z[m]];
+    auto const u = point.x - x_floor;
+    auto const v = point.y - y_floor;
+    auto const w = point.z - z_floor;
+
+    auto const i = static_cast<i32>(x_floor);
+    auto const k = static_cast<i32>(y_floor);
+    auto const m = static_cast<i32>(z_floor);
+
+    float c[2][2][2];
+
+    for (i32 di = 0; di < 2; ++di)
+    {
+        for (i32 dk = 0; dk < 2; ++dk)
+        {
+            for (i32 dm = 0; dm < 2; ++dm)
+            {
+                c[di][dk][dm] =
+                    m_rand_float[m_permutation_x[(i + di) & 255] ^ m_permutation_y[(k + dk) & 255] ^ m_permutation_z[(m + dm) & 255]];
+            }
+        }
+    }
+
+    return trilinear_interpolation(c, u, v, w);
+}
+
+float PerlinNoise::trilinear_interpolation(float c[2][2][2], float u, float v, float w)
+{
+    float accumulator = 0.0f;
+
+    for (i32 i = 0; i < 2; ++i)
+    {
+        for (i32 k = 0; k < 2; ++k)
+        {
+            for (i32 m = 0; m < 2; ++m)
+            {
+                accumulator += (i * u + (1 - i) * (1 - u)) * (k * v + (1 - k) * (1 - v)) * (m * w + (1 - m) * (1 - w)) * c[i][k][m];
+            }
+        }
+    }
+
+    return accumulator;
 }
 
 i32* PerlinNoise::perlin_generate_permutation()

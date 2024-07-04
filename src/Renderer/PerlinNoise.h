@@ -13,6 +13,7 @@ public:
     [[nodiscard]] float noise(glm::vec3 const& point) const;
 
 private:
+    static float trilinear_interpolation(float c[2][2][2], float u, float v, float w);
     static i32* perlin_generate_permutation();
     static void permute(i32* p, i32 n);
 
