@@ -1,8 +1,15 @@
 #include "Image.h"
 
+#include <iostream>
+
 #include <stb_image.h>
 
-Image::Image(std::string const& path)
+std::shared_ptr<Image> Image::create(std::string const& path)
+{
+    return std::make_shared<Image>(AK::Badge<Image> {}, path);
+}
+
+Image::Image(AK::Badge<Image>, std::string const& path)
 {
     bool const result = load(path);
 

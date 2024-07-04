@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "AK/Types.h"
+#include "Image.h"
 #include "Mesh.h"
 #include "Model.h"
 #include "Shader.h"
@@ -23,6 +24,8 @@ public:
     ~ResourceManager() = default;
 
     static ResourceManager& get_instance();
+
+    std::shared_ptr<Image> load_image(std::string const& path);
 
     std::shared_ptr<Texture> load_texture(std::string const& path, TextureType const type, TextureSettings const& settings = {});
     std::shared_ptr<Texture> load_cubemap(std::vector<std::string> const& paths, TextureType const type,
@@ -79,6 +82,15 @@ private:
                 return m_shaders[id];
             }
         }
+        else if constexpr (std::is_same_v<T, Image>)
+        {
+            auto const it = names_to_images.find(key);
+            if (it != names_to_images.end())
+            {
+                id = it->second;
+                return m_images[id];
+            }
+        }
 
         return nullptr;
     }
@@ -89,11 +101,13 @@ private:
     std::vector<std::shared_ptr<Texture>> m_textures = {};
     std::vector<std::shared_ptr<Mesh>> m_meshes = {};
     std::vector<std::shared_ptr<Shader>> m_shaders = {};
+    std::vector<std::shared_ptr<Image>> m_images = {};
 
     // KEYS (usually generated from path and optionally additional data) | INDICES, in a respective vector.
     std::unordered_map<std::string, u16> names_to_textures = {};
     std::unordered_map<std::string, u16> names_to_meshes = {};
     std::unordered_map<std::string, u16> names_to_shaders = {};
+    std::unordered_map<std::string, u16> names_to_images = {};
 
     inline static std::shared_ptr<ResourceManager> m_instance;
 };
