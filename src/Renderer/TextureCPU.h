@@ -62,8 +62,11 @@ class NoiseTexture final : public TextureCPU
 public:
     NoiseTexture() = default;
 
+    explicit NoiseTexture(float const scale);
+
     [[nodiscard]] virtual glm::vec3 value(float u, float v, glm::vec3 const& point) const override;
 
 private:
     PerlinNoise m_noise;
+    float m_scale = 1.0f;
 };
