@@ -9,6 +9,7 @@
 #include "ExampleUIBar.h"
 #include "MeshFactory.h"
 #include "Model.h"
+#include "Renderer/QuadRaytraced.h"
 #include "Renderer/Raytracer.h"
 #include "Renderer/SphereRaytraced.h"
 #include "Renderer/TextureCPU.h"
@@ -18,6 +19,62 @@
 
 Game::Game(std::shared_ptr<Window> const& window) : window(window)
 {
+}
+
+static void quads()
+{
+    auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+    auto const standard_material = Material::create(standard_shader);
+
+    auto const camera = Entity::create("Camera");
+    camera->transform->set_local_position(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->transform->set_euler_angles(glm::vec3(0.0f, 0.0f, 0.0f));
+    camera->add_component<SoundListener>(SoundListener::create());
+
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(80.0f));
+    camera_comp->update();
+
+    camera->transform->set_position({0.0f, 0.0f, 9.0f});
+    camera->transform->set_euler_angles({0.0f, 180.0f, 0.0f});
+
+    auto const raytracer = Raytracer::create();
+
+    raytracer->set_image_width(400);
+    raytracer->set_aspect_ratio(1.0f);
+    raytracer->set_samples_per_pixel(100);
+    raytracer->set_max_depth(50);
+
+    auto const quad1 = Material::create(standard_shader);
+    auto const quad2 = Material::create(standard_shader);
+    auto const quad3 = Material::create(standard_shader);
+    auto const quad4 = Material::create(standard_shader);
+    auto const quad5 = Material::create(standard_shader);
+    quad1->color = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
+    quad2->color = glm::vec4(0.2f, 1.0f, 0.2f, 1.0f);
+    quad3->color = glm::vec4(0.2f, 0.2f, 1.0f, 1.0f);
+    quad4->color = glm::vec4(1.0f, 0.5f, 00.f, 1.0f);
+    quad5->color = glm::vec4(0.2f, 0.8f, 0.8f, 1.0f);
+
+    auto quad = Entity::create("Quad");
+    quad->add_component<QuadRaytraced>(QuadRaytraced::create({-3.0f, -2.0f, 5.0f}, {0.0f, 0.0f, -4.0f}, {0.0f, 4.0f, 0.0f}, quad1));
+
+    quad = Entity::create("Quad");
+    quad->add_component<QuadRaytraced>(QuadRaytraced::create({-2.0f, -2.0f, 0.0f}, {4.0f, 0.0f, 0.0f}, {0.0f, 4.0f, 0.0f}, quad2));
+
+    quad = Entity::create("Quad");
+    quad->add_component<QuadRaytraced>(QuadRaytraced::create({3.0f, -2.0f, 1.0f}, {0.0f, 0.0f, 4.0f}, {0.0f, 4.0f, 0.0f}, quad3));
+
+    quad = Entity::create("Quad");
+    quad->add_component<QuadRaytraced>(QuadRaytraced::create({-2.0f, 3.0f, 1.0f}, {4.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 4.0f}, quad4));
+
+    quad = Entity::create("Quad");
+    quad->add_component<QuadRaytraced>(QuadRaytraced::create({-2.0f, -3.0f, 5.0f}, {4.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -4.0f}, quad5));
+
+    raytracer->initialize(camera_comp);
+
+    raytracer->render(camera_comp);
 }
 
 static void perlin_spheres()
@@ -245,7 +302,7 @@ static void bouncing_spheres_scene()
     raytracer->render(camera_comp);
 }
 
-i32 scene_index = 4;
+i32 scene_index = 5;
 
 void Game::initialize()
 {
@@ -300,6 +357,11 @@ void Game::initialize()
     case 4:
     {
         perlin_spheres();
+        break;
+    }
+    case 5:
+    {
+        quads();
         break;
     }
     default:

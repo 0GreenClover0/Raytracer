@@ -12,13 +12,17 @@ QuadRaytraced::QuadRaytraced(AK::Badge<QuadRaytraced>, glm::vec3 const& q, glm::
                              std::shared_ptr<Material> material)
     : Hittable(material), m_q(q), m_u(u), m_v(v)
 {
+    glm::vec3 const n = glm::cross(u, v);
+    m_normal = glm::normalize(n);
+    m_d = glm::dot(m_normal, q);
+    m_w = n / glm::dot(n, n);
 }
 
 void QuadRaytraced::initialize()
 {
     Hittable::initialize();
 
-    m_q = entity->transform->get_position();
+    entity->transform->set_position(m_q);
 
     set_bounding_box();
 }
@@ -36,7 +40,59 @@ void QuadRaytraced::draw() const
 
 bool QuadRaytraced::hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const
 {
-    return false; // TODO: Implement
+    float const denominator = glm::dot(m_normal, ray.direction());
+
+    // No hit if the ray is parallel to the plane.
+    if (std::fabs(denominator) < 0.000001f)
+    {
+        return false;
+    }
+
+    // Return false if the hit point parameter t is outside the ray interval.
+    float const t = (m_d - glm::dot(m_normal, ray.origin())) / denominator;
+
+    if (!ray_t.contains(t))
+    {
+        return false;
+    }
+
+    // Determine the hit point lies within the planar shape using its plane coordinates.
+    glm::vec3 const intersection = ray.at(t);
+
+    glm::vec3 const planar_hit = intersection - m_q;
+
+    float const alpha = glm::dot(m_w, glm::cross(planar_hit, m_v));
+    float const beta = glm::dot(m_w, glm::cross(m_u, planar_hit));
+
+    if (!is_interior(alpha, beta, hit_record))
+    {
+        return false;
+    }
+
+    // Ray hits the 2D shape; set the rest of the hit record and return true.
+    hit_record.t = t;
+    hit_record.point = intersection;
+    hit_record.material = material;
+    hit_record.set_face_normal(ray, m_normal);
+
+    return true;
+}
+
+bool QuadRaytraced::is_interior(float const a, float const b, HitRecord& hit_record)
+{
+    static Interval const unit_interval(0.0f, 1.0f);
+
+    // Given the hit point in plane coordinates, return false if it is outside the
+    // primitive, otherwise set the hit record UV coordinates and return true.
+    if (!unit_interval.contains(a) || !unit_interval.contains(b))
+    {
+        return false;
+    }
+
+    hit_record.u = a;
+    hit_record.v = b;
+
+    return true;
 }
 
 void QuadRaytraced::set_bounding_box()

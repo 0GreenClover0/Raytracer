@@ -18,9 +18,14 @@ public:
     virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const override;
 
 private:
+    static bool is_interior(float const a, float const b, HitRecord& hit_record);
     void set_bounding_box();
 
     glm::vec3 m_q = {};
     glm::vec3 m_u = {};
     glm::vec3 m_v = {};
+
+    glm::vec3 m_normal = {};
+    float m_d = 0.0f;
+    glm::vec3 m_w = {};
 };
