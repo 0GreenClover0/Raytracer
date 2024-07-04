@@ -75,5 +75,8 @@ NoiseTexture::NoiseTexture(float const scale) : m_scale(scale)
 
 glm::vec3 NoiseTexture::value(float u, float v, glm::vec3 const& point) const
 {
-    return glm::vec3(1.0f, 1.0f, 1.0f) * m_noise.noise(m_scale * point);
+    // The output of the Perlin interpolation function can return negative values.
+    // These negative values will be passed to our linear_to_gamma() color function, which expects only positive inputs.
+    // To mitigate this, we'll map the [-1,+1] range of values to [0,1].
+    return glm::vec3(1.0f, 1.0f, 1.0f) * 0.5f * (1.0f + m_noise.noise(m_scale * point));
 }
