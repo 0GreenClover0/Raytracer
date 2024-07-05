@@ -83,6 +83,9 @@ static void cornell_box()
     white_quad3->add_component<QuadRaytraced>(
         QuadRaytraced::create({0.0f, 0.0f, 555.0f}, {555.0f, 0.0f, 0.0f}, {0.0f, 555.0f, 0.0f}, white_material));
 
+    QuadRaytraced::box({130.0f, 0.0f, 65.0f}, {295.0f, 165.0f, 230.0f}, white_material);
+    QuadRaytraced::box({265.0f, 0.0f, 295.0f}, {430.0f, 330.0f, 460.0f}, white_material);
+
     raytracer->initialize(camera_comp);
 
     raytracer->render(camera_comp);
