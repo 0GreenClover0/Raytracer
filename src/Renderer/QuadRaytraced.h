@@ -17,6 +17,8 @@ public:
 
     virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const override;
 
+    static void box(glm::vec3 const& a, glm::vec3 const& b, std::shared_ptr<Material> const& material);
+
 private:
     static bool is_interior(float const a, float const b, HitRecord& hit_record);
     void set_bounding_box();

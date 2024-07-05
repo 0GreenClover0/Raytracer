@@ -1,6 +1,7 @@
 #include "QuadRaytraced.h"
 
 #include "Entity.h"
+#include "Material.h"
 
 std::shared_ptr<QuadRaytraced> QuadRaytraced::create(glm::vec3 const& q, glm::vec3 const& u, glm::vec3 const& v,
                                                      std::shared_ptr<Material> const& material)
@@ -100,4 +101,33 @@ void QuadRaytraced::set_bounding_box()
     auto const bbox_diagonal1 = AABB(m_q, m_q + m_u + m_v);
     auto const bbox_diagonal2 = AABB(m_q + m_u, m_q + m_v);
     m_bbox = AABB(bbox_diagonal1, bbox_diagonal2);
+}
+
+void QuadRaytraced::box(glm::vec3 const& a, glm::vec3 const& b, std::shared_ptr<Material> const& material)
+{
+    // Construct the two opposite vertices with the minimum and maximum coordinates.
+    auto const min = glm::vec3(std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z));
+    auto const max = glm::vec3(std::fmax(a.x, b.x), std::fmax(a.y, b.y), std::fmax(a.z, b.z));
+
+    auto const delta_x = glm::vec3(max.x - min.x, 0.0f, 0.0f);
+    auto const delta_y = glm::vec3(0.0f, max.y - min.y, 0.0f);
+    auto const delta_z = glm::vec3(0.0f, 0.0f, max.z - min.z);
+
+    auto entity = Entity::create("BoxSide");
+    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, max.z), delta_x, delta_y, material)); // Front
+
+    entity = Entity::create("BoxSide");
+    entity->add_component<QuadRaytraced>(create(glm::vec3(max.x, min.y, max.z), -delta_z, delta_y, material)); // Right
+
+    entity = Entity::create("BoxSide");
+    entity->add_component<QuadRaytraced>(create(glm::vec3(max.x, min.y, min.z), -delta_x, delta_y, material)); // Back
+
+    entity = Entity::create("BoxSide");
+    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, min.z), delta_z, delta_y, material)); // Left
+
+    entity = Entity::create("BoxSide");
+    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, max.y, max.z), delta_x, -delta_z, material)); // Top
+
+    entity = Entity::create("BoxSide");
+    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, min.z), delta_x, delta_z, material)); // Bottom
 }
