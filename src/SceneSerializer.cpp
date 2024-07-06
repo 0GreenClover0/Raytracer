@@ -31,6 +31,7 @@
 #include "Particle.h"
 #include "ParticleSystem.h"
 #include "PointLight.h"
+#include "Renderer/ConstantDensityMedium.h"
 #include "Renderer/Hittable.h"
 #include "Renderer/QuadRaytraced.h"
 #include "Renderer/RotateYHittable.h"
@@ -187,6 +188,13 @@ void SceneSerializer::auto_serialize_component(YAML::Emitter& out, std::shared_p
                 out << YAML::Key << "ComponentName" << YAML::Value << "QuadRaytracedComponent";
                 out << YAML::Key << "guid" << YAML::Value << quadraytraced->guid;
                 out << YAML::Key << "custom_name" << YAML::Value << quadraytraced->custom_name;
+            }
+            else if (auto const constantdensitymedium = std::dynamic_pointer_cast<class ConstantDensityMedium>(component);
+                     constantdensitymedium != nullptr)
+            {
+                out << YAML::Key << "ComponentName" << YAML::Value << "ConstantDensityMediumComponent";
+                out << YAML::Key << "guid" << YAML::Value << constantdensitymedium->guid;
+                out << YAML::Key << "custom_name" << YAML::Value << constantdensitymedium->custom_name;
             }
             else
             {
