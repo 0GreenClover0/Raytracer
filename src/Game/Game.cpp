@@ -9,6 +9,7 @@
 #include "ExampleUIBar.h"
 #include "MeshFactory.h"
 #include "Model.h"
+#include "Renderer/ConstantDensityMedium.h"
 #include "Renderer/QuadRaytraced.h"
 #include "Renderer/Raytracer.h"
 #include "Renderer/RotateYHittable.h"
@@ -21,6 +22,105 @@
 
 Game::Game(std::shared_ptr<Window> const& window) : window(window)
 {
+}
+
+static void cornell_smoke()
+{
+    auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+    auto const standard_material = Material::create(standard_shader);
+
+    auto const camera = Entity::create("Camera");
+    camera->add_component<SoundListener>(SoundListener::create());
+
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(40.0f));
+    camera_comp->update();
+
+    camera->transform->set_position({278.0f, 278.0f, -800.0f});
+    camera->transform->set_euler_angles({0.0f, 0.0f, 0.0f});
+
+    auto const raytracer = Raytracer::create();
+
+    raytracer->set_image_width(600);
+    raytracer->set_aspect_ratio(1.0f);
+    raytracer->set_samples_per_pixel(200);
+    raytracer->set_max_depth(50);
+    raytracer->set_background_color({0.0f, 0.0f, 0.0f});
+
+    auto const red_material = Material::create(standard_shader);
+    red_material->color = {0.65f, 0.05f, 0.05f, 1.0f};
+
+    auto const white_material = Material::create(standard_shader);
+    white_material->color = {0.73f, 0.73f, 0.73f, 1.0f};
+
+    auto const green_material = Material::create(standard_shader);
+    green_material->color = {0.12f, 0.45f, 0.15f, 1.0f};
+
+    auto const fog_material = Material::create(standard_shader);
+    fog_material->texture = std::make_shared<SolidColor>(glm::vec3(0.0f, 0.0f, 0.0f));
+    fog_material->isotropic = true;
+
+    auto const smoke_material = Material::create(standard_shader);
+    smoke_material->texture = std::make_shared<SolidColor>(glm::vec3(1.0f, 1.0f, 1.0f));
+    smoke_material->isotropic = true;
+
+    auto const light_material = Material::create(standard_shader);
+    light_material->color = {};
+    light_material->emmisive = true;
+    light_material->texture = std::make_shared<SolidColor>(glm::vec3 {7.0f, 7.0f, 7.0f});
+
+    auto const green_quad = Entity::create("GreenQuad");
+    green_quad->add_component<QuadRaytraced>(
+        QuadRaytraced::create({555.0f, 0.0f, 0.0f}, {0.0f, 555.0f, 0.0f}, {0.0f, 0.0f, 555.0f}, green_material));
+
+    auto const red_quad = Entity::create("RedQuad");
+    red_quad->add_component<QuadRaytraced>(
+        QuadRaytraced::create({0.0f, 0.0f, 0.0f}, {0.0f, 555.0f, 0.0f}, {0.0f, 0.0f, 555.0f}, red_material));
+
+    auto const light_quad = Entity::create("LightQuad");
+    light_quad->add_component<QuadRaytraced>(
+        QuadRaytraced::create({113.0f, 554.0f, 127.0f}, {330.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 305.0f}, light_material));
+
+    auto const white_quad1 = Entity::create("WhiteQuad1");
+    white_quad1->add_component<QuadRaytraced>(
+        QuadRaytraced::create({0.0f, 0.0f, 0.0f}, {555.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 555.0f}, white_material));
+
+    auto const white_quad2 = Entity::create("WhiteQuad2");
+    white_quad2->add_component<QuadRaytraced>(
+        QuadRaytraced::create({555.0f, 555.0f, 555.0f}, {-555.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -555.0f}, white_material));
+
+    auto const white_quad3 = Entity::create("WhiteQuad3");
+    white_quad3->add_component<QuadRaytraced>(
+        QuadRaytraced::create({0.0f, 0.0f, 555.0f}, {555.0f, 0.0f, 0.0f}, {0.0f, 555.0f, 0.0f}, white_material));
+
+    auto sides = QuadRaytraced::box({0.0f, 0.0f, 0.0f}, {165.0f, 330.0f, 165.0f}, white_material);
+
+    for (auto& side : sides)
+    {
+        side = side->entity->add_component<RotateYHittable>(std::make_shared<RotateYHittable>(side, 15.0f));
+        side = side->entity->add_component<TranslateHittable>(std::make_shared<TranslateHittable>(side, glm::vec3(265.0f, 0.0f, 295.0f)));
+    }
+
+    auto const fog = Entity::create("Fog");
+    fog->add_component<ConstantDensityMedium>(
+        std::make_shared<ConstantDensityMedium>(std::vector(sides.begin(), sides.end()), 0.01f, fog_material));
+
+    sides = QuadRaytraced::box({0.0f, 0.0f, 0.0f}, {165.0f, 165.0f, 165.0f}, white_material);
+
+    for (auto& side : sides)
+    {
+        side = side->entity->add_component<RotateYHittable>(std::make_shared<RotateYHittable>(side, -18.0f));
+        side = side->entity->add_component<TranslateHittable>(std::make_shared<TranslateHittable>(side, glm::vec3(130.0f, 0.0f, 65.0f)));
+    }
+
+    auto const smoke = Entity::create("Smoke");
+    smoke->add_component<ConstantDensityMedium>(
+        std::make_shared<ConstantDensityMedium>(std::vector(sides.begin(), sides.end()), 0.01f, smoke_material));
+
+    raytracer->initialize(camera_comp);
+
+    raytracer->render(camera_comp);
 }
 
 static void cornell_box()
@@ -445,7 +545,7 @@ static void bouncing_spheres_scene()
     raytracer->render(camera_comp);
 }
 
-i32 scene_index = 7;
+i32 scene_index = 8;
 
 void Game::initialize()
 {
@@ -515,6 +615,11 @@ void Game::initialize()
     case 7:
     {
         cornell_box();
+        break;
+    }
+    case 8:
+    {
+        cornell_smoke();
         break;
     }
     default:
