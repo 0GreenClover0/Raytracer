@@ -86,6 +86,12 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
     {
         return false;
     }
+    else if (isotropic)
+    {
+        scattered = Ray(hit_record.point, AK::Math::random_unit_vector());
+        attenuation = texture->value(hit_record.u, hit_record.v, hit_record.point);
+        return true;
+    }
     else
     {
         glm::vec3 scatter_direction = hit_record.normal + AK::Math::random_unit_vector();
