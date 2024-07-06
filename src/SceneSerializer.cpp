@@ -33,7 +33,9 @@
 #include "PointLight.h"
 #include "Renderer/Hittable.h"
 #include "Renderer/QuadRaytraced.h"
+#include "Renderer/RotateYHittable.h"
 #include "Renderer/SphereRaytraced.h"
+#include "Renderer/TranslateHittable.h"
 #include "ScreenText.h"
 #include "ShaderFactory.h"
 #include "Sound.h"
@@ -162,11 +164,23 @@ void SceneSerializer::auto_serialize_component(YAML::Emitter& out, std::shared_p
         if (auto const hittable = std::dynamic_pointer_cast<class Hittable>(component); hittable != nullptr)
         {
             // # Put new Hittable kid here
-            if (auto const sphereraytraced = std::dynamic_pointer_cast<class SphereRaytraced>(component); sphereraytraced != nullptr)
+            if (auto const translatehittable = std::dynamic_pointer_cast<class TranslateHittable>(component); translatehittable != nullptr)
+            {
+                out << YAML::Key << "ComponentName" << YAML::Value << "TranslateHittableComponent";
+                out << YAML::Key << "guid" << YAML::Value << translatehittable->guid;
+                out << YAML::Key << "custom_name" << YAML::Value << translatehittable->custom_name;
+            }
+            else if (auto const sphereraytraced = std::dynamic_pointer_cast<class SphereRaytraced>(component); sphereraytraced != nullptr)
             {
                 out << YAML::Key << "ComponentName" << YAML::Value << "SphereRaytracedComponent";
                 out << YAML::Key << "guid" << YAML::Value << sphereraytraced->guid;
                 out << YAML::Key << "custom_name" << YAML::Value << sphereraytraced->custom_name;
+            }
+            else if (auto const rotateyhittable = std::dynamic_pointer_cast<class RotateYHittable>(component); rotateyhittable != nullptr)
+            {
+                out << YAML::Key << "ComponentName" << YAML::Value << "RotateYHittableComponent";
+                out << YAML::Key << "guid" << YAML::Value << rotateyhittable->guid;
+                out << YAML::Key << "custom_name" << YAML::Value << rotateyhittable->custom_name;
             }
             else if (auto const quadraytraced = std::dynamic_pointer_cast<class QuadRaytraced>(component); quadraytraced != nullptr)
             {

@@ -3,6 +3,8 @@
 #include "Entity.h"
 #include "Material.h"
 
+#include <array>
+
 std::shared_ptr<QuadRaytraced> QuadRaytraced::create(glm::vec3 const& q, glm::vec3 const& u, glm::vec3 const& v,
                                                      std::shared_ptr<Material> const& material)
 {
@@ -103,7 +105,8 @@ void QuadRaytraced::set_bounding_box()
     m_bbox = AABB(bbox_diagonal1, bbox_diagonal2);
 }
 
-void QuadRaytraced::box(glm::vec3 const& a, glm::vec3 const& b, std::shared_ptr<Material> const& material)
+std::array<std::shared_ptr<Hittable>, 6> QuadRaytraced::box(glm::vec3 const& a, glm::vec3 const& b,
+                                                            std::shared_ptr<Material> const& material)
 {
     // Construct the two opposite vertices with the minimum and maximum coordinates.
     auto const min = glm::vec3(std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z));
@@ -113,21 +116,25 @@ void QuadRaytraced::box(glm::vec3 const& a, glm::vec3 const& b, std::shared_ptr<
     auto const delta_y = glm::vec3(0.0f, max.y - min.y, 0.0f);
     auto const delta_z = glm::vec3(0.0f, 0.0f, max.z - min.z);
 
+    std::array<std::shared_ptr<Hittable>, 6> sides = {};
+
     auto entity = Entity::create("BoxSide");
-    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, max.z), delta_x, delta_y, material)); // Front
+    sides[0] = entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, max.z), delta_x, delta_y, material)); // Front
 
     entity = Entity::create("BoxSide");
-    entity->add_component<QuadRaytraced>(create(glm::vec3(max.x, min.y, max.z), -delta_z, delta_y, material)); // Right
+    sides[1] = entity->add_component<QuadRaytraced>(create(glm::vec3(max.x, min.y, max.z), -delta_z, delta_y, material)); // Right
 
     entity = Entity::create("BoxSide");
-    entity->add_component<QuadRaytraced>(create(glm::vec3(max.x, min.y, min.z), -delta_x, delta_y, material)); // Back
+    sides[2] = entity->add_component<QuadRaytraced>(create(glm::vec3(max.x, min.y, min.z), -delta_x, delta_y, material)); // Back
 
     entity = Entity::create("BoxSide");
-    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, min.z), delta_z, delta_y, material)); // Left
+    sides[3] = entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, min.z), delta_z, delta_y, material)); // Left
 
     entity = Entity::create("BoxSide");
-    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, max.y, max.z), delta_x, -delta_z, material)); // Top
+    sides[4] = entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, max.y, max.z), delta_x, -delta_z, material)); // Top
 
     entity = Entity::create("BoxSide");
-    entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, min.z), delta_x, delta_z, material)); // Bottom
+    sides[5] = entity->add_component<QuadRaytraced>(create(glm::vec3(min.x, min.y, min.z), delta_x, delta_z, material)); // Bottom
+
+    return sides;
 }
