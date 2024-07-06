@@ -36,6 +36,9 @@ public:
 
     virtual bool hit(Ray const& ray, Interval const ray_t, HitRecord& hit_record) const = 0;
 
+    static bool hit_list(std::vector<std::weak_ptr<Hittable>> const& hittables, Ray const& ray, Interval const ray_t,
+                         HitRecord& hit_record);
+
     AABB bounding_box() const;
 
 protected:
