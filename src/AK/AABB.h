@@ -30,3 +30,13 @@ struct AABB
 private:
     void pad_to_minimums();
 };
+
+inline AABB operator+(AABB const& bbox, glm::vec3 const& offset)
+{
+    return AABB(bbox.x + offset.x, bbox.y + offset.y, bbox.z + offset.z);
+}
+
+inline AABB operator+(glm::vec3 const& offset, AABB const& bbox)
+{
+    return bbox + offset;
+}
