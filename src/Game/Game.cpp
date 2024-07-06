@@ -11,8 +11,10 @@
 #include "Model.h"
 #include "Renderer/QuadRaytraced.h"
 #include "Renderer/Raytracer.h"
+#include "Renderer/RotateYHittable.h"
 #include "Renderer/SphereRaytraced.h"
 #include "Renderer/TextureCPU.h"
+#include "Renderer/TranslateHittable.h"
 #include "ResourceManager.h"
 #include "ScreenText.h"
 #include "SoundListener.h"
@@ -83,8 +85,21 @@ static void cornell_box()
     white_quad3->add_component<QuadRaytraced>(
         QuadRaytraced::create({0.0f, 0.0f, 555.0f}, {555.0f, 0.0f, 0.0f}, {0.0f, 555.0f, 0.0f}, white_material));
 
-    QuadRaytraced::box({130.0f, 0.0f, 65.0f}, {295.0f, 165.0f, 230.0f}, white_material);
-    QuadRaytraced::box({265.0f, 0.0f, 295.0f}, {430.0f, 330.0f, 460.0f}, white_material);
+    auto sides = QuadRaytraced::box({0.0f, 0.0f, 0.0f}, {165.0f, 330.0f, 165.0f}, white_material);
+
+    for (auto side : sides)
+    {
+        side = side->entity->add_component<RotateYHittable>(std::make_shared<RotateYHittable>(side, 15.0f));
+        side = side->entity->add_component<TranslateHittable>(std::make_shared<TranslateHittable>(side, glm::vec3(265.0f, 0.0f, 295.0f)));
+    }
+
+    sides = QuadRaytraced::box({0.0f, 0.0f, 0.0f}, {165.0f, 165.0f, 165.0f}, white_material);
+
+    for (auto side : sides)
+    {
+        side = side->entity->add_component<RotateYHittable>(std::make_shared<RotateYHittable>(side, -18.0f));
+        side = side->entity->add_component<TranslateHittable>(std::make_shared<TranslateHittable>(side, glm::vec3(130.0f, 0.0f, 65.0f)));
+    }
 
     raytracer->initialize(camera_comp);
 
