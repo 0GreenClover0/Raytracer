@@ -24,6 +24,157 @@ Game::Game(std::shared_ptr<Window> const& window) : window(window)
 {
 }
 
+static void final_scene_book2(i32 image_width, i32 samples_per_pixel, i32 max_depth)
+{
+    auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
+    auto const standard_material = Material::create(standard_shader);
+
+    // Set up camera
+    auto const camera = Entity::create("Camera");
+    camera->add_component<SoundListener>(SoundListener::create());
+
+    auto const camera_comp = camera->add_component(Camera::create());
+    camera_comp->set_can_tick(true);
+    camera_comp->set_fov(glm::radians(40.0f));
+    camera_comp->update();
+
+    camera->transform->set_position({478.0f, 278.0f, -600.0f});
+    camera->transform->set_euler_angles({0.0f, -17.0f, 0.0f});
+
+    auto const raytracer = Raytracer::create();
+
+    raytracer->set_image_width(image_width);
+    raytracer->set_aspect_ratio(1.0f);
+    raytracer->set_samples_per_pixel(samples_per_pixel);
+    raytracer->set_max_depth(max_depth);
+    raytracer->set_background_color({0.0f, 0.0f, 0.0f});
+
+    // Ground boxes
+    auto const ground_material = Material::create(standard_shader);
+    ground_material->color = {0.48f, 0.83f, 0.53f, 1.0f};
+
+    i32 constexpr boxes_per_side = 20;
+    for (i32 i = 0; i < boxes_per_side; i++)
+    {
+        for (i32 j = 0; j < boxes_per_side; j++)
+        {
+            auto w = 100.0f;
+            auto x0 = -1000.0f + i * w;
+            auto z0 = -1000.0f + j * w;
+            auto y0 = 0.0f;
+            auto x1 = x0 + w;
+            auto y1 = glm::linearRand(1.0f, 101.0f);
+            auto z1 = z0 + w;
+
+            QuadRaytraced::box({x0, y0, z0}, {x1, y1, z1}, ground_material);
+        }
+    }
+
+    // Light
+    auto const light_material = Material::create(standard_shader);
+    light_material->emmisive = true;
+    light_material->texture = std::make_shared<SolidColor>(glm::vec3(7.0f, 7.0f, 7.0f));
+
+    auto const light_quad = Entity::create("LightQuad");
+    light_quad->add_component<QuadRaytraced>(
+        QuadRaytraced::create({123.0f, 554.0f, 147.0f}, {300.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 265.0f}, light_material));
+
+    // Static sphere
+    auto const sphere_material = Material::create(standard_shader);
+    sphere_material->color = {0.7f, 0.3f, 0.1f, 1.0f};
+
+    auto const static_sphere = Entity::create("StaticSphere");
+    static_sphere->transform->set_position({400.0f, 400.0f, 200.0f});
+    static_sphere->add_component<SphereRaytraced>(SphereRaytraced::create(50.0f, sphere_material));
+
+    // Glass sphere
+    auto const glass_material = Material::create(standard_shader);
+    glass_material->dielectric = true;
+    glass_material->refraction_index = 1.5f;
+
+    auto const glass_sphere = Entity::create("GlassSphere");
+    glass_sphere->transform->set_position({260.0f, 150.0f, 45.0f});
+    glass_sphere->add_component<SphereRaytraced>(SphereRaytraced::create(50.0f, glass_material));
+
+    // Metal sphere
+    auto const metal_material = Material::create(standard_shader);
+    metal_material->metal = true;
+    metal_material->color = {0.8f, 0.8f, 0.9f, 1.0f};
+    metal_material->fuzz = 1.0f;
+
+    auto const metal_sphere = Entity::create("MetalSphere");
+    metal_sphere->transform->set_position({0.0f, 150.0f, 145.0f});
+    metal_sphere->add_component<SphereRaytraced>(SphereRaytraced::create(50.0f, metal_material));
+
+    // Boundary spheres with constant medium
+    auto const boundary_material = Material::create(standard_shader);
+    boundary_material->dielectric = true;
+    boundary_material->refraction_index = 1.5f;
+
+    auto const boundary1_medium_material = Material::create(standard_shader);
+    boundary1_medium_material->texture = std::make_shared<SolidColor>(glm::vec3(0.2f, 0.4f, 0.9f));
+    boundary1_medium_material->isotropic = true;
+
+    auto const boundary1 = Entity::create("Boundary1");
+    boundary1->transform->set_position({360.0f, 150.0f, 145.0f});
+    auto const medium1 = boundary1->add_component<SphereRaytraced>(SphereRaytraced::create(70.0f, boundary_material));
+
+    auto const boundary1_medium = Entity::create("Boundary1Medium");
+    boundary1_medium->add_component<ConstantDensityMedium>(
+        std::make_shared<ConstantDensityMedium>(std::vector<std::shared_ptr<Hittable>> {medium1}, 0.2f, boundary1_medium_material, false));
+
+    auto const boundary2 = Entity::create("Boundary2");
+    boundary2->transform->set_position({0.0f, 0.0f, 0.0f});
+    auto const medium2 = boundary2->add_component<SphereRaytraced>(SphereRaytraced::create(5000.0f, boundary_material));
+
+    auto const boundary2_medium_material = Material::create(standard_shader);
+    boundary2_medium_material->texture = std::make_shared<SolidColor>(glm::vec3(1.0f, 1.0f, 1.0f));
+    boundary2_medium_material->isotropic = true;
+
+    auto const boundary2_medium = Entity::create("Boundary2Medium");
+    boundary2_medium->add_component<ConstantDensityMedium>(
+        std::make_shared<ConstantDensityMedium>(std::vector<std::shared_ptr<Hittable>> {medium2}, 0.0001f, boundary2_medium_material));
+
+    // Earth sphere with image texture
+    auto const earth_material = Material::create(standard_shader);
+    earth_material->texture = std::make_shared<ImageTexture>("./res/textures/images/flowers.jpg");
+
+    auto const earth_sphere = Entity::create("EarthSphere");
+    earth_sphere->transform->set_position({400.0f, 200.0f, 400.0f});
+    earth_sphere->add_component<SphereRaytraced>(SphereRaytraced::create(100.0f, earth_material));
+
+    // Noise texture sphere
+    auto const noise_material = Material::create(standard_shader);
+    noise_material->texture = std::make_shared<NoiseTexture>(0.2f);
+
+    auto const noise_sphere = Entity::create("NoiseSphere");
+    noise_sphere->transform->set_position({220.0f, 280.0f, 300.0f});
+    noise_sphere->add_component<SphereRaytraced>(SphereRaytraced::create(80.0f, noise_material));
+
+    // Small white spheres cluster
+    auto const white_material = Material::create(standard_shader);
+    white_material->color = {0.73f, 0.73f, 0.73f, 1.0f};
+
+    i32 const ns = 1000;
+    for (i32 j = 0; j < ns; j++)
+    {
+        auto const small_sphere = Entity::create("SmallSphere" + std::to_string(j));
+        small_sphere->transform->set_position(glm::linearRand(glm::vec3 {0.0f}, glm::vec3 {165.0f}));
+        std::shared_ptr<Hittable> small_sphere_raytraced =
+            small_sphere->add_component<SphereRaytraced>(SphereRaytraced::create(10.0f, white_material));
+
+        // Rotate and translate
+        small_sphere_raytraced =
+            small_sphere->add_component<RotateYHittable>(std::make_shared<RotateYHittable>(small_sphere_raytraced, 15.0f));
+        small_sphere->add_component<TranslateHittable>(
+            std::make_shared<TranslateHittable>(small_sphere_raytraced, glm::vec3 {-100.0f, 270.0f, 395.0f}));
+    }
+
+    raytracer->initialize(camera_comp);
+
+    raytracer->render(camera_comp);
+}
+
 static void cornell_smoke()
 {
     auto const standard_shader = ResourceManager::get_instance().load_shader("./res/shaders/lit.hlsl", "./res/shaders/lit.hlsl");
@@ -545,7 +696,7 @@ static void bouncing_spheres_scene()
     raytracer->render(camera_comp);
 }
 
-i32 scene_index = 8;
+i32 scene_index = 9;
 
 void Game::initialize()
 {
@@ -620,6 +771,11 @@ void Game::initialize()
     case 8:
     {
         cornell_smoke();
+        break;
+    }
+    case 9:
+    {
+        final_scene_book2(800, 20, 40);
         break;
     }
     default:
