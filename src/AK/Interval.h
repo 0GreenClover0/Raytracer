@@ -19,3 +19,13 @@ public:
     static Interval const empty;
     static Interval const whole;
 };
+
+inline Interval operator+(Interval const& interval, float const displacement)
+{
+    return Interval(interval.min + displacement, interval.max + displacement);
+}
+
+inline Interval operator+(float const displacement, Interval const& interval)
+{
+    return interval + displacement;
+}
