@@ -49,7 +49,7 @@ public:
 
     bool metal = false;
     bool dielectric = false;
-    bool emmisive = false;
+    bool emissive = false;
     bool isotropic = false;
 
     // Should be in 0.0 - 1.0 range
