@@ -82,7 +82,7 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
         scattered = Ray(hit_record.point, direction);
         return true;
     }
-    else if (emmisive)
+    else if (emissive)
     {
         return false;
     }
@@ -118,7 +118,7 @@ bool Material::scatter(Ray const& ray_in, HitRecord const& hit_record, glm::vec3
 
 glm::vec3 Material::emit(float const u, float const v, glm::vec3 const& point) const
 {
-    if (!emmisive)
+    if (!emissive)
         return {};
 
     return texture->value(u, v, point);

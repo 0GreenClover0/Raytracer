@@ -72,7 +72,7 @@ static void final_scene_book2(i32 image_width, i32 samples_per_pixel, i32 max_de
 
     // Light
     auto const light_material = Material::create(standard_shader);
-    light_material->emmisive = true;
+    light_material->emissive = true;
     light_material->texture = std::make_shared<SolidColor>(glm::vec3(7.0f, 7.0f, 7.0f));
 
     auto const light_quad = Entity::create("LightQuad");
@@ -218,7 +218,7 @@ static void cornell_smoke()
 
     auto const light_material = Material::create(standard_shader);
     light_material->color = {};
-    light_material->emmisive = true;
+    light_material->emissive = true;
     light_material->texture = std::make_shared<SolidColor>(glm::vec3 {7.0f, 7.0f, 7.0f});
 
     auto const green_quad = Entity::create("GreenQuad");
@@ -309,7 +309,7 @@ static void cornell_box()
 
     auto const light_material = Material::create(standard_shader);
     light_material->color = {};
-    light_material->emmisive = true;
+    light_material->emissive = true;
     light_material->texture = std::make_shared<SolidColor>(glm::vec3 {15.0f, 15.0f, 15.0f});
 
     auto const green_quad = Entity::create("GreenQuad");
@@ -394,7 +394,7 @@ static void simple_light()
     sphere2->add_component<SphereRaytraced>(SphereRaytraced::create(2.0f, material));
 
     auto const light_material = Material::create(standard_shader);
-    light_material->emmisive = true;
+    light_material->emissive = true;
     glm::vec3 constexpr light_color = {4.0f, 4.0f, 4.0f};
     light_material->texture = std::make_shared<SolidColor>(light_color);
 
